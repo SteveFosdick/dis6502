@@ -1,0 +1,29 @@
+Title:        dis6502
+Version:      1
+Submitted:    Jun 7 1988
+Author:       Robert Bond 
+Submittor:    Robert Bond 
+Description:  6502 disassembler
+
+This is a 6502 disassembler for the Atari 8 bit machines.  I submitted
+to comp.sources.unix because it runs on unix boxes, not on the 8
+bitters - it is too big.  I last posted it to net.sources before the
+big reorganization.  It has not changed since then but I have had
+requests lately that I submit it to comp.sources so that the
+archives will get it.
+
+As always, if you have problems, let me know and I'll look at them.
+Maybe not fix, but certainly admire :-).  I like to hear from satisfied
+users, too.
+
+Standard disclaimer -  
+
+This software is in the public domain.  It is not National
+Semiconductor's product, and comes with no warranties.
+
+                                                Bob Bond
+
+                                                rgb@nscpdc.nsc.com
+                                                tektronix!nscpdc!rgb
+                                                nsc!nscpdc!rgb
+

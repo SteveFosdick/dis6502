@@ -1,0 +1,53 @@
+dis6502 by Robert Bond, Udi Finkelstein, and Eric Smith
+Copyright 2000-2003 Eric Smith
+$Id: README 26 2004-01-17 23:28:23Z eric $
+
+dis6502 is a flow-tracing disassembler for the 6502, originally written
+by Robert Bond and supporting Atari binary files.  Robert posted dis6502
+to the Usenet newsgroup net.sources on 9-Oct-1986, and to
+comp.sources.unix 7-Jun-1988.  Udi Finkelstein ported dis6502 to the
+Amiga, added support for Commodore 64 object files, and posted it to
+comp.sources.amiga on 4-Nov-1988.  These versions were in the public
+domain.
+
+This version of dis6502 has been modified in several ways:
+
+* Can read raw binary files.
+
+* Option to specify alternate reset and interrupt vector addresses.
+
+* Line numbers are no longer necessary with equates in definition files.
+
+* If a data reference is made to an address that does not have an
+  assigned name, but address-1 does, the reference will be disassembled
+  as name+1.  This is convenient for two-byte variables, particularly in
+  zero page.
+
+* New definition file directives:
+
+        <name> .equ <addr>                     same as .eq
+
+               .jtab2 <addr>,<addr>,<count>    table of code pointers, split
+                                               into high and low byte tables
+
+               .rtstab <addr>,<addr>,<count>   like jtab2, but each entry
+					       contains the target address
+					       minus one, for use with RTS
+
+* Rather than using recursive calls to trace every instruction, there is
+  now a trace queue.
+
+* Added a "-7" option to mask off MSB of character data.
+
+* Updated to use ANSI C function prototypes and include files.
+
+* Amiga/Manx changes have been removed.
+
+dis6502 has been tested on Red Hat Linux 9, but should work on other
+Linux, BSD, and Unix systems.
+
+dis6502 is distributed under the terms of the Free Software Foundation's
+General Public License, Version 2.  See the file COPYING for details.
+
+The original release notes from Robert Bond and Udi Finkelstein are in
+the files README.Bond and README.Finkelstein.
