@@ -67,7 +67,7 @@ alphanum	[0-9a-zA-Z_]
 			}
 
 \${hexdigit}+		{
-			  (void)sscanf(yytext+1, "%x", &token.ival);
+			  (void)sscanf(yytext+1, "%x", (unsigned int*)&token.ival);
 			  return NUMBER;
 			}
 

@@ -444,7 +444,7 @@ void loadboot (void)
 	FILE *fp;
 	int base_addr;
 	register int i;
-	int len;
+	size_t len;
 
 	fp = fopen(file, "r");
 	cur_file = NULL;

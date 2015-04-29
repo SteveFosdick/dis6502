@@ -31,7 +31,7 @@ DEBUG=1
 #STATIC=1
 
 
-CFLAGS = -Wall
+CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -D_DEFAULT_SOURCE
 LDFLAGS =
 LDLIBS =
 
