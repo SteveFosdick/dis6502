@@ -15,11 +15,14 @@ changes are all under GPL v2 as well of course, not that they amount to much:
 Peter H. Froehlich
 phf at acm dot org
 
-Links
-=====
+Links / Credits
+===============
 
 Eric Smith's dis6502 page (including the original dis6502 sources):
   https://www.brouhaha.com/~eric/software/dis6502/
 
 Eric Smith's Apple 1 Basic disassembly:
   https://www.brouhaha.com/~eric/retrocomputing/apple/apple1/basic/
+
+Michael Steil's post about recovering the Apple 1 Basic ROM from audio tape:
+  http://www.pagetable.com/?p=32
