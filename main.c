@@ -51,7 +51,7 @@ int jtab2_count = 0;
 VALUE token;
 
 unsigned char d[0x10000];	 	/* The data */
-unsigned char f[0x10000];		/* Flags for memory usage */ 
+unsigned char f[0x10000];		/* Flags for memory usage */
 long offset [0x10000];                  /* label offset */
 
 
@@ -63,8 +63,8 @@ void crash (char *p)
 {
 	fprintf(stderr, "%s: %s\n", progname, p);
 	if (cur_file != NULL)
-		fprintf(stderr, "Line %d of %s\n", lineno+1, cur_file);
-	exit(1);
+		fprintf(stderr, "Line %d of %s\n", lineno + 1, cur_file);
+	exit(EXIT_FAILURE);
 }
 
 
@@ -79,7 +79,7 @@ void add_trace (addr_t addr)
 void trace_inst (addr_t addr)
 {
   int opcode;
-  register struct info *ip; 
+  struct info *ip;
   int operand;
   int istart;
 
@@ -160,9 +160,9 @@ void trace_inst (addr_t addr)
 	  add_trace(operand);
 	  return;
 	case FORK:
-	  if (ip->flag & REL) 
+	  if (ip->flag & REL)
 	    {
-	      if (operand > 127) 
+	      if (operand > 127)
 		operand = (~0xff | operand);
 	      operand = operand + addr;
 	      f[operand] |= JREF;
@@ -199,14 +199,14 @@ void start_trace (addr_t loc, char *name)
 	save_ref(0, loc);
 	add_trace(loc);
 }
-	
+
 
 void do_ptrace (void)
 {
   int i;
   for (i = 0; i<tstarti; i++)
     {
-      char *trace_sym = (char *) malloc (6);
+      char *trace_sym = emalloc (6);
       sprintf (trace_sym, "P%04x", tstart [i]);
       start_trace(tstart[i], trace_sym);
     }
@@ -223,7 +223,7 @@ void do_rtstab (void)
       loc = rtstab_addr [i];
       for (j = 0; j < rtstab_size [i]; j++)
 	{
-	  char *trace_sym = (char *) malloc (6);
+	  char *trace_sym = emalloc (6);
 	  code = d [loc] + (d [loc + 1] << 8) + 1;
 	  sprintf (trace_sym, "T%04x", code);
 	  start_trace (code, trace_sym);
@@ -242,12 +242,12 @@ void do_jtab2 (void)
       loc_h = jtab2_addr_high [i];
       for (j = 0; j < jtab2_size [i]; j++)
 	{
-	  char *trace_sym = (char *) malloc (6);
+	  char *trace_sym = emalloc (6);
 	  code = d [loc_l + j] + (d [loc_h + j] << 8);
 	  sprintf (trace_sym, "T%04x", code);
 	  start_trace (code, trace_sym);
 	}
-    } 
+    }
 }
 
 
@@ -267,9 +267,9 @@ int main (int argc, char *argv[])
 		get_predef();
 	}
 
-	switch (bopt) 
+	switch (bopt)
 	  {
-	  case RAW_BINARY: 
+	  case RAW_BINARY:
 	    binaryloadfile();
 	    break;
 	  case ATARI_LOAD:
@@ -293,7 +293,7 @@ int main (int argc, char *argv[])
 
 	dumpitout();
 
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
 
@@ -304,7 +304,7 @@ void get_predef (void)
 	int size;
 	char *name;
 
-	for(;;) 
+	for(;;)
 		switch (yylex()) {
 		case '\n':
 			break;
@@ -346,19 +346,19 @@ void get_predef (void)
 		  jtab2_size [jtab2_count++] = token.ival;
 		  break;
 		case TSTART:
-			if (yylex() != NUMBER) 
+			if (yylex() != NUMBER)
 				crash(".trace needs a number operand");
 			loc = token.ival;
 			if (loc > 0x10000 || loc < 0)
 				crash("Number out of range");
-			if (tstarti == NTSTART) 
+			if (tstarti == NTSTART)
 				crash("Too many .trace directives");
 			tstart[tstarti++] = loc;
 			while (yylex() != '\n')
 				;
 			break;
 		case TSTOP:
-			if (yylex() != NUMBER) 
+			if (yylex() != NUMBER)
 				crash(".stop needs a number operand");
 			loc = token.ival;
 			if (loc > 0x10000 || loc < 0)
@@ -378,7 +378,7 @@ void get_predef (void)
 			    if (loc > 0x10000 || loc < 0)
 			      crash("Number out of range");
 			    f[loc] |= NAMED;
-			    save_name(loc, name); 
+			    save_name(loc, name);
 			    break;
 			  case EQS:
 			    if (yylex() != NUMBER)
@@ -403,7 +403,7 @@ void get_predef (void)
 			    crash("name can only be used with equate in defines file");
 			    break;
 			  }
-			while (yylex() != '\n') 
+			while (yylex() != '\n')
 			  ;
 			break;
 		case OFS:
@@ -441,27 +441,27 @@ void loadboot (void)
 
 	FILE *fp;
 	int base_addr;
-	register int i;
+	int i;
 	size_t len;
 
 	fp = fopen(file, "r");
 	cur_file = NULL;
-	if (!fp) { 
+	if (!fp) {
 		fprintf(stderr, "Cant open %s\n", file);
 
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
-	if(fread((char *)&bh, sizeof(bh), 1, fp) != 1) 
+	if(fread((char *)&bh, sizeof(bh), 1, fp) != 1)
 		crash("Input too short");
-	
+
 	base_addr = bh.base_low + (bh.base_hi << 8);
 	len = bh.nsec * 128;
 	rewind(fp);
-	if (fread((char *)&d[base_addr], 1, len, fp) != len) 
+	if (fread((char *)&d[base_addr], 1, len, fp) != len)
 		crash("input too short");
 
-	for(i = base_addr; len > 0; len--) 
+	for(i = base_addr; len > 0; len--)
 		f[i++] |= LOADED;
 
 	start_trace(base_addr+6, "**BOOT**");
@@ -473,24 +473,24 @@ void loadfile (void)
 	FILE *fp;
 	int base_addr;
 	int last_addr;
-	register int i;
+	int i;
 	int had_header;
 	int tmp;
 
 	had_header = 0;
 	fp = fopen(file, "r");
 	cur_file = NULL;
-	if (!fp) { 
+	if (!fp) {
 		fprintf(stderr, "Cant open %s\n", file);
 
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	for(;;) {
 
 		i = getc(fp);
 
 		if (i == EOF) {
-			if (f[RUNLOC] & LOADED & f[RUNLOC+1]) {
+			if (f[RUNLOC] & LOADED & f[RUNLOC + 1]) {
 				i = getword(RUNLOC);
 				start_trace(i, "**RUN**");
 			}
@@ -502,7 +502,7 @@ void loadfile (void)
 			had_header = 1;
 			base_addr = getc(fp);
 			base_addr = base_addr | (getc(fp) << 8);
-			if (base_addr < 0 || base_addr > 0xffff) 
+			if (base_addr < 0 || base_addr > 0xffff)
 				crash("Invalid base addr in input file");
 		} else {
 			if (!had_header)
@@ -512,25 +512,25 @@ void loadfile (void)
 
 		last_addr = getc(fp);
 		last_addr = last_addr | (getc(fp) << 8);
-		if (last_addr < base_addr || last_addr > 0xffff) 
+		if (last_addr < base_addr || last_addr > 0xffff)
 			crash("Invalid length in input file");
 
 		printf("Load:  %4x -> %4x\n", base_addr, last_addr);
 		for(i = base_addr; i <= last_addr; i++) {
 			tmp = getc(fp);
-			if (tmp == EOF) 
+			if (tmp == EOF)
 				crash("File too small");
 			d[i] = tmp;
 			f[i] |= LOADED;
 		}
 
-		if (f[INITLOC] & LOADED & f[INITLOC+1])  {
+		if (f[INITLOC] & LOADED & f[INITLOC + 1])  {
 			i = getword(INITLOC);
 			start_trace(i, "**INIT**");
 		}
 
 		f[INITLOC] &= ~LOADED;
-		f[INITLOC+1] &= ~LOADED;
+		f[INITLOC + 1] &= ~LOADED;
 	}
 
 }
@@ -544,10 +544,10 @@ void c64loadfile (void)
 
 	fp = fopen(file, "r");
 	cur_file = NULL;
-	if (!fp) { 
+	if (!fp) {
 		fprintf(stderr, "Cant open %s\n", file);
 
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	base_addr = getc(fp);
@@ -576,7 +576,7 @@ void binaryloadfile (void)
   if (!fp)
     {
       fprintf (stderr, "Can't open %s\n", file);
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   i = base_address;
@@ -593,15 +593,15 @@ void binaryloadfile (void)
 
   fprintf (stderr, "base: %04x  reset: %04x  irq: %04x  nmi: %04x\n", base_address, reset, irq, nmi);
 
-  start_trace ((d [reset+1] << 8) | d [reset], "RESET");
-  start_trace ((d [irq  +1] << 8) | d [irq  ], "IRQ");
-  start_trace ((d [nmi  +1] << 8) | d [nmi  ], "NMI");
+  start_trace ((d [reset + 1] << 8) | d [reset], "RESET");
+  start_trace ((d [irq   + 1] << 8) | d [irq  ], "IRQ");
+  start_trace ((d [nmi   + 1] << 8) | d [nmi  ], "NMI");
 }
 
 int
 yywrap()
 {
-	(void)fclose(yyin);
+	fclose(yyin);
 	if (npredef == pre_index) {
 		return(1);
 	} else  {
@@ -609,7 +609,7 @@ yywrap()
 		cur_file = predef[pre_index];
 		pre_index++;
 		yyin = fopen(cur_file, "r");
-		if (!yyin) 
+		if (!yyin)
 			crash("Can't open predefines file");
 		return (0);
 	}

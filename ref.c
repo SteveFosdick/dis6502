@@ -37,7 +37,7 @@ struct   hashslot hashtbl[HTSIZE];	/* the hash table */
 struct hashslot *hash (addr_t loc, int allocate)
 {
 	int probes;
-	register struct hashslot *hp;
+	struct hashslot *hp;
 
 	hp = &hashtbl[loc & HTMASK];
 	probes = 0;

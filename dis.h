@@ -47,7 +47,7 @@ extern unsigned char f[];
 extern unsigned char d[];
 extern long offset[];
 
-#define getword(x) (d[x] + (d[x+1] << 8))
+#define getword(x) (d[x] + (d[x + 1] << 8))
 #define getbyte(x) (d[x])
 
 /* f bits */

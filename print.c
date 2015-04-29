@@ -36,10 +36,10 @@ static char *lname (addr_t i, int offset_ok)
 	static char buf[20];
 	char t;
 
-	if (f[i] & NAMED) 
+	if (f[i] & NAMED)
 		return(get_name(i));
 	if (f[i] & OFFSET) {
-		(void)strcpy(buf, get_name(i+offset[i]));
+		strcpy(buf, get_name(i + offset[i]));
 		sprintf (buf + strlen (buf), "%c%ld",
 			 (offset [i] <= 0) ? '+' : '-',
 			 labs (offset [i]));
@@ -56,13 +56,13 @@ static char *lname (addr_t i, int offset_ok)
 	    else
 	      t = 'D';
 	  }
-	else 
+	else
 		t = 'X';
 
 	if (i <= 0xff)
-	  (void)sprintf(buf, "%c%02x", t, i);
+	  sprintf(buf, "%c%02x", t, i);
 	else
-	  (void)sprintf(buf, "%c%04x", t, i);
+	  sprintf(buf, "%c%04x", t, i);
 
 	return (buf);
 }
@@ -84,9 +84,9 @@ void dumpitout (void)
 {
   uint32_t i;  /* must be larger than an addr_t */
 
-  for(i = 0; i<0x10000;) 
+  for(i = 0; i<0x10000;)
     {
-      if (f[i] & LOADED) 
+      if (f[i] & LOADED)
 	{
 	  if ((i == 0) || (! (f[i-1] & LOADED)))
 	    printf ("\t.org\t$%04x\n", i);
@@ -109,7 +109,7 @@ void dumpitout (void)
 	  printf("\n");
 
 	}
-      else 
+      else
 	{
 	  if (print_label (i))
 	    {
@@ -137,7 +137,7 @@ int pchar (int c)
 
 void print_bytes (addr_t addr)
 {
-	register struct info *ip; 
+	struct info *ip;
 
 	if ((f[addr] & ISOP) == 0) {
 		printf("           ");
@@ -151,19 +151,18 @@ void print_bytes (addr_t addr)
 			printf("%02x         ", getbyte(addr));
 			break;
 		case 2:
-			printf("%02x %02x      ", getbyte(addr), getbyte(addr+1));
+			printf("%02x %02x      ", getbyte(addr), getbyte(addr + 1));
 			break;
 		case 3:
-			printf("%02x %02x %02x   ", getbyte(addr), getbyte(addr+1), getbyte(addr+2));
+			printf("%02x %02x %02x   ", getbyte(addr), getbyte(addr + 1), getbyte(addr + 2));
 			break;
 	}
 }
-		
 
 int print_inst(addr_t addr)
 {
 	int opcode;
-	register struct info *ip; 
+	struct info *ip;
 	int operand;
 
 	opcode = getbyte(addr);
@@ -187,7 +186,7 @@ int print_inst(addr_t addr)
 	}
 
 	if (ip->flag & REL) {
-		if (operand > 127) 
+		if (operand > 127)
 			operand = (~0xff | operand);
 		operand = operand + ip->nb + addr - 1;
 	}
@@ -241,7 +240,7 @@ int print_data (addr_t i)
 	i++;
 
 	for (j = 1; j < 8; j++) {
-		if (f[i] & (JREF | SREF | DREF) || ((f[i] & LOADED) == 0)) 
+		if (f[i] & (JREF | SREF | DREF) || ((f[i] & LOADED) == 0))
 			break;
 		else
 			printf(",$%02x", getbyte(i));
@@ -253,7 +252,7 @@ int print_data (addr_t i)
 
 	printf("\t; \"");
 
-	for (j = start; j < i ; j++) 
+	for (j = start; j < i ; j++)
 			printf("%c", pchar((int)getbyte(j)));
 
 	printf ("\"");
@@ -270,11 +269,11 @@ void print_refs (void)
 	uint32_t i;  /* must be larger than an addr_t */
 	int npline;
 
-	(void)sprintf(tname, "dis.%d", getpid());
-	(void)sprintf(cmd, "sort %s; rm %s", tname, tname);
+	sprintf(tname, "dis.%d", getpid());
+	sprintf(cmd, "sort %s; rm %s", tname, tname);
 
 	fp = fopen(tname, "w");
-	if (!fp) 
+	if (!fp)
 		crash("Cant open temporary file/n");
 
 	for (i = 0; i<0x10000; i++) {
@@ -302,11 +301,11 @@ void print_refs (void)
 
 	}
 
-	(void)fclose(fp);
+	fclose(fp);
 
 	printf("\n\n\n\n\nCross References\n\n");
 	printf("%-8s  Value  References\n", "Symbol");
-	(void)fflush (stdout);
+	fflush (stdout);
 
-	(void)system(cmd);
+	system(cmd);
 }

@@ -22,12 +22,12 @@
 
 
 %{
+#define YY_NO_INPUT
 #undef ECHO
 #include <stdint.h>
 #include <string.h>
 #include "dis.h"
 int lineno = 0;
-char *strcpy();
 %}
 
 %option nounput
@@ -62,18 +62,18 @@ alphanum	[0-9a-zA-Z_]
 \.[Jj][Tt][Aa][Bb]2	{ return TJTAB2; }
 
 {digit}+		{
-			  (void)sscanf(yytext, "%d", &token.ival); 
+			  sscanf(yytext, "%d", &token.ival);
 			  return NUMBER;
 			}
 
 \${hexdigit}+		{
-			  (void)sscanf(yytext+1, "%x", (unsigned int*)&token.ival);
+			  sscanf(yytext + 1, "%x", (unsigned int*)&token.ival);
 			  return NUMBER;
 			}
 
 {alpha}{alphanum}*	{
-			  token.sval = emalloc((unsigned) strlen(yytext)+1);
-			  (void)strcpy((char *)token.sval, (char *)yytext);
+			  token.sval = emalloc(strlen(yytext) + 1);
+			  strcpy(token.sval, yytext);
 			  return NAME;
 			}
 \*.*			{
@@ -92,9 +92,9 @@ emalloc(size_t bytes)
 {
 	char *ptr;
 
-	if ((ptr = malloc(bytes)) == (char *) 0) {
-		(void) fprintf(stderr,"out of core");
-		exit(1);
+	if ((ptr = malloc(bytes)) == NULL) {
+		fprintf(stderr, "out of core");
+		exit(EXIT_FAILURE);
 	}
 	return ptr;
 }

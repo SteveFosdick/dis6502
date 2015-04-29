@@ -1,5 +1,4 @@
-/* 
- * 
+/*
  *  dis [-p predefineds] file
  *
  *  The -p option may be repeated.
@@ -20,17 +19,20 @@ int asmout = 0;
 
 void usage (void)
 {
-  fprintf (stderr, "Usage: %s <format> <options> <object-file>\n"
-	           "  format:   -r <address>   raw binary file\n"
-	           "            -b             Atari boot format\n"
-                   "            -l             Atari load format\n"
-	           "            -c             Commodore 64\n"
-                   "  options:  -a             assembly output\n"
-                   "            -p <file>      predefs\n"
-	           "            -v <address>   alternate vector address\n"
-	   	   "            -7             mask character data to 7-bit",
-	   progname);
-  exit (1);
+	fprintf(
+		stderr,
+		"Usage: %s <format> <options> <object-file>\n"
+		"  format:   -r <address>   raw binary file\n"
+		"            -b             Atari boot format\n"
+		"            -l             Atari load format\n"
+		"            -c             Commodore 64\n"
+		"  options:  -a             assembly output\n"
+		"            -p <file>      predefs\n"
+		"            -v <address>   alternate vector address\n"
+		"            -7             mask character data to 7-bit\n",
+		progname
+	);
+	exit(EXIT_FAILURE);
 }
 
 void initopts (int argc, char *argv[])
@@ -39,16 +41,16 @@ void initopts (int argc, char *argv[])
   char *ca;
   char *p;
   int fileset = 0;
-  
+
   progname = argv[0];
 
-  while (--argc) 
+  while (--argc)
     {
-      if ((*++argv)[0] == '-') 
+      if ((*++argv)[0] == '-')
 	{
 	  ca = *argv;
 	  for(ai = 1; ca[ai] != '\0'; ai++)
-	    switch (ca[ai]) 
+	    switch (ca[ai])
 	      {
 	      case 'a':
 		asmout = 1;
@@ -90,7 +92,7 @@ void initopts (int argc, char *argv[])
 	{
 	  file = *argv;
 	  fileset++;
-	} 
+	}
       else usage ();
     }
   if (!fileset)
