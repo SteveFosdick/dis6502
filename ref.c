@@ -40,6 +40,7 @@ int allocate;
 	}
 
 	crash("Hash table full");
+	/*NOTREACHED*/
 }
 
 save_ref(refer, refee) 

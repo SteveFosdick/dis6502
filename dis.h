@@ -24,7 +24,7 @@ extern unsigned char d[];
 #define ISOP   0x40			/* Is a valid instruction opcode */
 
 struct info {
-	char *opn;
+	char opn[4];
 	int  nb;
 	int  flag;
 };

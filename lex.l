@@ -2,6 +2,7 @@
 #undef ECHO
 #include "dis.h"
 int lineno = 0;
+char *strcpy();
 %}
 %%
 [ \t] { ; }
@@ -36,7 +37,7 @@ int lineno = 0;
 }
 [A-Za-z][A-Za-z0-9_]* {
 				token.sval = emalloc((unsigned) strlen(yytext)+1);
-				(void) strcpy((char *) token.sval, (char *) yytext);
+				(void)strcpy((char *)token.sval, (char *)yytext);
 				return NAME;
 }
 \*.* {
@@ -56,12 +57,4 @@ unsigned n;
 		exit(1);
 	}
 	return ptr;
-}
-
-int
-yyerror(s)
-char *s;
-{
-	(void) fprintf(stderr,"%s in line %d\n", s, lineno);
-	exit(1);
 }

@@ -1,6 +1,9 @@
 #include <ctype.h>
 #include "dis.h"
 
+char *strcpy();
+char *strcat();
+
 dumpitout()
 {
 	int i;
@@ -46,8 +49,8 @@ int i;
 	if (f[i] & NAMED) 
 		return(get_name(i));
 	if ((i > 0) && ((f[i-1] & (NAMED | DREF)) == (NAMED | DREF))) {
-		strcpy(buf, get_name(i-1));
-		strcat(buf, "+1");
+		(void)strcpy(buf, get_name(i-1));
+		(void)strcat(buf, "+1");
 		return (buf);
 	}
 	if (f[i] & SREF)
@@ -59,7 +62,7 @@ int i;
 	else 
 		t = 'X';
 	
-	sprintf(buf, "%c%x", t, i);
+	(void)sprintf(buf, "%c%x", t, i);
 	return (buf);
 }
 
@@ -103,9 +106,7 @@ int addr;
 	int opcode;
 	register struct info *ip; 
 	int operand;
-	int istart;
 
-	istart = addr;
 	opcode = getbyte(addr);
 	ip = &optbl[opcode];
 
@@ -192,7 +193,7 @@ print_data(i)
 	printf("    * ");
 
 	for (j = start; j < i ; j++) 
-			printf("%c", pchar(getbyte(j)));
+			printf("%c", pchar((int)getbyte(j)));
 
 	return (count);
 }
@@ -204,13 +205,14 @@ print_refs()
 	FILE *fp;
 	register struct ref_chain *rp;
 	register int i;
+	int npline;
 
-	sprintf(tname, "dis.%d", getpid());
-	sprintf(cmd, "sort %s; rm %s", tname, tname);
+	(void)sprintf(tname, "dis.%d", getpid());
+	(void)sprintf(cmd, "sort %s; rm %s", tname, tname);
 
 	fp = fopen(tname, "w");
 	if (!fp) 
-		crash("Cant open %s/n", tname);
+		crash("Cant open temporary file/n");
 
 	for (i = 0; i<0x10000; i++) {
 		if(f[i] & (JREF|SREF|DREF)) {
@@ -221,8 +223,15 @@ print_refs()
 			}
 
 			fprintf(fp, "%-8s  %04x   ", lname(i), i);
+			npline = 0;
 			while (rp) {
 				fprintf(fp, "%04x ", rp->who);
+				npline++;
+				if (npline == 12) {
+					fprintf(fp,"\n");
+					fprintf(fp,"%-8s  %04x   ",lname(i),i);
+					npline = 0;
+				}
 				rp = rp->next;
 			}
 			fprintf(fp, "\n");
@@ -230,11 +239,11 @@ print_refs()
 
 	}
 
-	fclose(fp);
+	(void)fclose(fp);
 
 	printf("\n\n\n\n\nCross References\n\n");
 	printf("%-8s  Value  References\n", "Symbol");
-	fflush (stdout);
+	(void)fflush (stdout);
 
-	system(cmd);
+	(void)system(cmd);
 }

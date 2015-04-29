@@ -54,7 +54,6 @@ char *p;
 get_predef()
 {
 	int loc;
-	int tmp;
 	char *name;
 
 	for(;;) 
@@ -72,7 +71,7 @@ get_predef()
 			if (tstarti == NTSTART) 
 				crash("Too many .trace directives");
 			tstart[tstarti++] = loc;
-			while ((tmp = yylex()) != '\n')
+			while (yylex() != '\n')
 				;
 			break;
 		case TSTOP:
@@ -82,14 +81,14 @@ get_predef()
 			if (loc > 0x10000 || loc < 0)
 				crash("Number out of range");
 			f[loc] |= TDONE;
-			while ((tmp = yylex()) != '\n')
+			while (yylex() != '\n')
 				;
 			break;
 		case NUMBER:
 			switch (yylex()) {
 			case LI:
 			case COMMENT:
-				while ((tmp = yylex()) != '\n')
+				while (yylex() != '\n')
 					;
 				break;
 			case '\n':
@@ -140,13 +139,13 @@ loadboot()
 		exit(1);
 	}
 
-	if(fread(&bh, sizeof(bh), 1, fp) != 1) 
+	if(fread((char *)&bh, sizeof(bh), 1, fp) != 1) 
 		crash("Input too short");
 	
 	base_addr = bh.base_low + (bh.base_hi << 8);
 	len = bh.nsec * 128;
 	rewind(fp);
-	if (fread(&d[base_addr], 1, len, fp) != len) 
+	if (fread((char *)&d[base_addr], 1, len, fp) != len) 
 		crash("input too short");
 
 	for(i = base_addr; len > 0; len--) 
@@ -336,7 +335,7 @@ register int addr;
 int
 yywrap()
 {
-	fclose(yyin);
+	(void)fclose(yyin);
 	if (npredef == pre_index) {
 		return(1);
 	} else  {
