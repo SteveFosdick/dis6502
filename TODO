@@ -1,0 +1,23 @@
+TODO
+====
+
+- figure out why my disassembly of the Apple 1 Basic ROM is different
+  from Eric Smith's disassembly
+
+- produce a decent disassembly of *something*, probably the C64 Basic
+  ROM
+
+- get the memory allocation stuff under control, it's a tad bit weird
+  to have all that static allocation stuff but then malloc()s for six
+  bytes at a time?
+
+- maybe correct the length of "illegal" opcodes? the question is whether
+  that'll actually improve the disassembly of anything; need a test case
+  that actually has/uses those opcodes for sure
+
+- get the file handling stuff under control, it's also a bit messy
+
+- that queue is not a queue, it's a stack; figure out what it really
+  should be
+
+- crash() should be printf-style, as per usual :-)
