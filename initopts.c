@@ -37,13 +37,17 @@ char *argv[];
 		case 'b':
 		    bopt = 1;
 		    break;
+
+		case 'c':
+			bopt = 2;
+			break;
                 default: crash("Invalid option letter");
                 }
         } else if (!fileset) {
 	    file = *argv;
 	    fileset++;
-	} else crash("Usage: [-p predef] file");
+	} else crash("Usage: [-{c|b}] [-p predef] file");
     }
     if (!fileset)
-	 crash("Usage: [-p predef] file");
+	 crash("Usage: [-{c|b}] [-p predef] file");
 }

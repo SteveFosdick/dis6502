@@ -207,8 +207,13 @@ print_refs()
 	register int i;
 	int npline;
 
+#ifndef AMIGA
 	(void)sprintf(tname, "dis.%d", getpid());
 	(void)sprintf(cmd, "sort %s; rm %s", tname, tname);
+#else
+	(void)sprintf(tname, "dis.%ld", FindTask(0L));
+	(void)sprintf(cmd, "Sort from %s to %s", tname, &tname[3] );
+#endif
 
 	fp = fopen(tname, "w");
 	if (!fp) 
@@ -245,5 +250,13 @@ print_refs()
 	printf("%-8s  Value  References\n", "Symbol");
 	(void)fflush (stdout);
 
+#ifndef AMIGA
 	(void)system(cmd);
+#else
+	(void)Execute(cmd,0L,0L);
+	(void)sprintf(cmd, "Type %s",&tname[3]);
+	(void)Execute(cmd,0L,Output());
+	DeleteFile(tname);
+	DeleteFile(&tname[3]);
+#endif
 }

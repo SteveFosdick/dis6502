@@ -9,8 +9,13 @@ int  tstarti = 0;
 
 VALUE token;
 
+#ifdef AMIGA
+unsigned char *d,*f; /* Manx has a bug preventing us from declaring arrays >64K */
+extern unsigned char *calloc();
+#else
 unsigned char d[0x10000];	 	/* The data */
 unsigned char f[0x10000];		/* Flags for memory usage */ 
+#endif
 
 #define RUNLOC  0x2e0
 #define INITLOC 0x2e2
@@ -21,6 +26,11 @@ char *argv[];
 {
 	int i;
 
+#ifdef AMIGA
+d = calloc(0x10000,1);
+f = calloc(0x10000,1);
+#endif
+
 	initopts(argc, argv);
 	if (npredef > 0) {
 		cur_file = predef[0];
@@ -30,15 +40,27 @@ char *argv[];
 			crash ("Cant open predefine file");
 		get_predef();
 	}
-	if (bopt)
-		loadboot();
-	else
-		loadfile();
-
+	switch (bopt) {
+		case 0:
+			loadboot();
+			break;
+		case 1:
+			loadfile();
+			break;
+		case 2:
+			c64loadfile();
+			break;
+		}
 	for (i = 0; i<tstarti; i++)
 		start_trace(tstart[i], "*PTRACE*");
 
 	dumpitout();
+
+#ifdef AMIGA
+free(d);
+free(f);
+#endif
+
 	exit(0);
 }
 
@@ -48,6 +70,10 @@ char *p;
 	fprintf(stderr, "%s: %s\n", progname, p);
 	if (cur_file != NULL)
 		fprintf(stderr, "Line %d of %s\n", lineno+1, cur_file);
+#ifdef AMIGA
+free(d);
+free(f);
+#endif
 	exit(1);
 }
 
@@ -136,6 +162,12 @@ loadboot()
 	cur_file = NULL;
 	if (!fp) { 
 		fprintf(stderr, "Cant open %s\n", file);
+
+#ifdef AMIGA
+free(d);
+free(f);
+#endif
+
 		exit(1);
 	}
 
@@ -154,6 +186,7 @@ loadboot()
 	start_trace(base_addr+6, "**BOOT**");
 }
 
+
 loadfile()
 {
 	FILE *fp;
@@ -168,6 +201,12 @@ loadfile()
 	cur_file = NULL;
 	if (!fp) { 
 		fprintf(stderr, "Cant open %s\n", file);
+
+#ifdef AMIGA
+free(d);
+free(f);
+#endif
+
 		exit(1);
 	}
 	for(;;) {
@@ -220,8 +259,40 @@ loadfile()
 
 }
 
+
+c64loadfile()
+{
+	FILE *fp;
+	unsigned int base_addr,i;
+	int c;
+
+	fp = fopen(file, "r");
+	cur_file = NULL;
+	if (!fp) { 
+		fprintf(stderr, "Cant open %s\n", file);
+
+#ifdef AMIGA
+		free(d);
+		free(f);
+#endif
+
+		exit(1);
+	}
+
+	base_addr = getc(fp);
+	i = ( base_addr += ( (unsigned int)getc(fp) << 8 ) );
+
+	while( (c = getc(fp)) != EOF) {
+		d[i] = c;
+		f[i++] |= LOADED;
+		}
+
+	start_trace(base_addr, "**C64BIN**");
+}
+
+
 start_trace(loc, name)
-int loc;
+unsigned int loc;
 char *name;
 {
 	printf("Trace: %4x %s\n", loc, name);
@@ -233,7 +304,7 @@ char *name;
 }
 	
 trace(addr)
-register int addr;
+register unsigned int addr;
 {
 	int opcode;
 	register struct info *ip; 

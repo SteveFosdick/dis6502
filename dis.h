@@ -7,8 +7,12 @@ extern int  npredef;
 extern char *file;
 extern char *progname;
 extern int  bopt;
+#ifndef AMIGA
 extern unsigned char f[];
 extern unsigned char d[];
+#else
+extern unsigned char *d,*f;
+#endif
 
 #define getword(x) (d[x] + (d[x+1] << 8))
 #define getbyte(x) (d[x])
