@@ -21,8 +21,6 @@
  */
 
 
-#include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -31,9 +29,6 @@
 #include <unistd.h>
 
 #include "dis.h"
-
-char *strcpy();
-char *strcat();
 
 
 static char *lname (addr_t i, int offset_ok)

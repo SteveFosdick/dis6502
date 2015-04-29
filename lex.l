@@ -88,12 +88,11 @@ alphanum	[0-9a-zA-Z_]
 %%
 
 char *
-emalloc(n)
-unsigned n;
+emalloc(size_t bytes)
 {
 	char *ptr;
 
-	if ((ptr = malloc(n)) == (char *) 0) {
+	if ((ptr = malloc(bytes)) == (char *) 0) {
 		(void) fprintf(stderr,"out of core");
 		exit(1);
 	}

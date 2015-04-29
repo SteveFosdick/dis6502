@@ -1,3 +1,6 @@
+#ifndef _DIS6502_H
+#define _DIS6502_H
+
 /*
  * dis6502 by Robert Bond, Udi Finkelstein, and Eric Smith
  *
@@ -20,6 +23,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA
  */
 
+#include <stdint.h>
+#include <stdio.h>
 
 extern int sevenbit;  /* if true, mask character data with 0x7f
 			 to ignore MSB */
@@ -120,7 +125,7 @@ extern FILE *yyin, *yyout;
 int lineno;
 
 int yywrap(), yyerror();
-char *emalloc();
+char *emalloc(size_t bytes);
 
 typedef union  {
 	int ival;
@@ -164,3 +169,5 @@ void loadboot (void);
 void loadfile (void);
 void c64loadfile (void);
 void binaryloadfile (void);
+
+#endif /* _DIS6502_H */

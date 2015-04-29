@@ -21,9 +21,6 @@
  */
 
 
-#include <stdint.h>
-#include <stdio.h>
-
 #include "dis.h"
 
 struct info optbl[256] = {
