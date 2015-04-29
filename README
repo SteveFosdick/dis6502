@@ -1,3 +1,12 @@
 I was curious about this disassembler so I decided to import the known sources
 for it and play around a bit. This is the result so far, and it's probably not
 useful for anyone out there. Oh well.
+
+See README.Smith, README.Finkelstein, and README.Bond for a history lesson. My
+changes are all under GPL v2 as well of course, not that they amount to much:
+
+  - lots of cleanup work regarding whitespace, warnings, casts, includes,
+    etc.
+
+Peter H. Froehlich
+phf at acm dot org
