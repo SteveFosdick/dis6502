@@ -91,7 +91,7 @@ char *
 emalloc(n)
 unsigned n;
 {
-	char *ptr, *malloc();
+	char *ptr;
 
 	if ((ptr = malloc(n)) == (char *) 0) {
 		(void) fprintf(stderr,"out of core");
