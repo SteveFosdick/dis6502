@@ -68,7 +68,7 @@ void save_ref (addr_t refer, addr_t refee)
 	struct ref_chain *rc;
 	struct hashslot *hp;
 
-	rc = (struct ref_chain *)emalloc(sizeof(*rc));
+	rc = emalloc(sizeof(*rc));
 	rc->who = refer;
 	hp = hash(refee, 1);
 	rc->next = hp->ref;

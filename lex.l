@@ -24,7 +24,6 @@
 %{
 #define YY_NO_INPUT
 #undef ECHO
-#include <stdint.h>
 #include <string.h>
 #include "dis.h"
 int lineno = 0;
@@ -86,14 +85,3 @@ alphanum	[0-9a-zA-Z_]
 .			{ return yytext[0]; }
 
 %%
-
-char *
-emalloc(size_t bytes)
-{
-	char *ptr;
-
-	if ((ptr = malloc(bytes)) == NULL) {
-		crash("Out of memory");
-	}
-	return ptr;
-}

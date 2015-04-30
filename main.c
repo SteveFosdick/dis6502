@@ -80,6 +80,17 @@ void crash (const char *fmt, ...)
 }
 
 
+void *emalloc(size_t bytes)
+{
+	void *ptr;
+
+	if ((ptr = calloc(1, bytes)) == NULL) {
+		crash("Out of memory");
+	}
+	return ptr;
+}
+
+
 void add_trace (addr_t addr)
 {
   if (f [addr] & TDONE)

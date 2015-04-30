@@ -126,7 +126,7 @@ extern FILE *yyin, *yyout;
 int lineno;
 
 int yywrap(), yyerror();
-char *emalloc(size_t bytes);
+void *emalloc(size_t bytes) __attribute__((malloc));
 
 typedef union  {
 	int ival;
