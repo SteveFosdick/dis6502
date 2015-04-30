@@ -63,14 +63,14 @@ void initopts (int argc, char *argv[])
 	      case 'r':
 		base_address = strtoul (*++argv, &p, 0);
 		if (*p)
-		  crash ("base address must be specified");
+		  crash ("Base address must be specified");
 		bopt = RAW_BINARY;
 		argc--;
 		break;
 	      case 'v':
 		vector_address = strtoul (*++argv, &p, 0);
 		if (*p)
-		  crash ("address required");
+		  crash ("Vector address required");
 		argc--;
 		break;
 	      case 'l':

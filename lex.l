@@ -93,8 +93,7 @@ emalloc(size_t bytes)
 	char *ptr;
 
 	if ((ptr = malloc(bytes)) == NULL) {
-		fprintf(stderr, "out of core");
-		exit(EXIT_FAILURE);
+		crash("Out of memory");
 	}
 	return ptr;
 }

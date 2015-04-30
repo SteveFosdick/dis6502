@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdnoreturn.h>
 
 extern int sevenbit;  /* if true, mask character data with 0x7f
 			 to ignore MSB */
@@ -162,7 +163,7 @@ addr_t pop_trace_queue (void);
 
 
 /* in main.c: */
-void crash (char *p) __attribute__ ((noreturn));
+noreturn void crash (const char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
 void get_predef (void);
 
 void loadboot (void);

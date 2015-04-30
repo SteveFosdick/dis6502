@@ -274,7 +274,7 @@ void print_refs (void)
 
 	fp = fopen(tname, "w");
 	if (!fp)
-		crash("Cant open temporary file/n");
+		crash("Can't open temporary file %s", tname);
 
 	for (i = 0; i<0x10000; i++) {
 		if(f[i] & (JREF|SREF|DREF)) {

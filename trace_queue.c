@@ -44,7 +44,7 @@ int trace_queue_empty (void)
 void push_trace_queue (addr_t addr)
 {
   if (trace_queue_count >= MAX_TRACE_QUEUE)
-    crash ("trace queue overflow");
+    crash ("Trace queue overflow");
   trace_queue_val [trace_queue_count++] = addr;
 }
 
@@ -52,7 +52,7 @@ void push_trace_queue (addr_t addr)
 addr_t pop_trace_queue (void)
 {
   if (trace_queue_count == 0)
-    crash ("trace queue empty");
+    crash ("Trace queue empty");
   return (trace_queue_val [--trace_queue_count]);
 }
 

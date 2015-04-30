@@ -21,6 +21,8 @@
  */
 
 
+#include <assert.h>
+#include <stdarg.h>
 #include <stdlib.h>
 
 #include "dis.h"
@@ -59,11 +61,21 @@ long offset [0x10000];                  /* label offset */
 #define INITLOC 0x2e2
 
 
-void crash (char *p)
+void crash (const char *fmt, ...)
 {
-	fprintf(stderr, "%s: %s\n", progname, p);
+	char buffer[1024]; /* ugly, but not too bad */
+
+	va_list ap;
+	va_start(ap, fmt);
+
+	int result = vsnprintf(buffer, sizeof(buffer), fmt, ap);
+	assert(result > 0);
+
+	fprintf(stderr, "%s: %s\n", progname, buffer);
 	if (cur_file != NULL)
 		fprintf(stderr, "Line %d of %s\n", lineno + 1, cur_file);
+
+	va_end(ap);
 	exit(EXIT_FAILURE);
 }
 
@@ -144,7 +156,7 @@ void trace_inst (addr_t addr)
 	  save_ref(istart, operand);
 	  break;
 	default:
-	  crash("Optable error");
+	  crash("Unknown addressing mode in opcode table");
 	  break;
 	}
 
@@ -177,7 +189,7 @@ void trace_inst (addr_t addr)
 	case STOP:
 	  return;
 	default:
-	  crash("Optable error");
+	  crash("Unknown control flow in opcode table");
 	}
     }
 }
@@ -263,7 +275,7 @@ int main (int argc, char *argv[])
 		pre_index++;
 		yyin = fopen(cur_file, "r");
 		if (!yyin)
-			crash ("Cant open predefine file");
+			crash ("Can't open predefine file %s", cur_file);
 		get_predef();
 	}
 
@@ -282,7 +294,7 @@ int main (int argc, char *argv[])
 	    loadboot();
 	    break;
 	  default:
-	    crash ("file format must be specified");
+	    crash ("File format must be specified");
 	  }
 
 	do_ptrace ();
@@ -321,7 +333,7 @@ void get_predef (void)
 		  if (yylex() != ',')
 		    crash(".rtstab needs a comma");
 		  if (yylex() != NUMBER)
-		    crash(".rtstab needs a comma");
+		    crash(".rtstab needs a number operand");
 		  size = token.ival;
 		  rtstab_addr [rtstab_count] = loc;
 		  rtstab_size [rtstab_count++] = size;
@@ -373,7 +385,7 @@ void get_predef (void)
 			  {
 			  case EQ:
 			    if (yylex() != NUMBER)
-			      crash("EQ operand must be a number");
+			      crash(".eq operand must be a number");
 			    loc = token.ival;
 			    if (loc > 0x10000 || loc < 0)
 			      crash("Number out of range");
@@ -382,14 +394,14 @@ void get_predef (void)
 			    break;
 			  case EQS:
 			    if (yylex() != NUMBER)
-			      crash("EQS operand must be a number");
+			      crash(".eqs operand must be a number");
 			    loc = token.ival;
 			    if (loc > 0x10000 || loc < 0)
 			      crash("Number out of range");
 			    if (yylex() != ',')
 			      crash(".eqs needs a comma");
 			    if (yylex() != NUMBER)
-			      crash("EQS operand must be a number");
+			      crash(".eqs operand must be a number");
 			    size = token.ival;
 			    f[loc] |= NAMED;
 			    save_name(loc, name);
@@ -400,7 +412,7 @@ void get_predef (void)
 			      }
 			    break;
 			  default:
-			    crash("name can only be used with equate in defines file");
+			    crash("Name can only be used with equate in predefines file");
 			    break;
 			  }
 			while (yylex() != '\n')
@@ -408,14 +420,14 @@ void get_predef (void)
 			break;
 		case OFS:
 		  if (yylex() != NUMBER)
-		    crash("EQ operand must be a number");
+		    crash(".ofs operand must be a number");
 		  loc = token.ival;
 		  if (loc > 0x10000 || loc < 0)
 		    crash("Number out of range");
 		  if (yylex() != ',')
 		    crash(".ofs needs a comma");
 		  if (yylex() != NUMBER)
-		    crash("EQ operand must be a number");
+		    crash(".ofs operand must be a number");
 		  loc2 = token.ival;
 		  if (loc2 > 0x10000 || loc2 < 0)
 		    crash("Number out of range");
@@ -424,7 +436,7 @@ void get_predef (void)
 		  offset[loc] = loc2 - loc;
 		  break;
 		default:
-			crash("Invalid line in predef file");
+			crash("Invalid line in predefines file");
 		}
 }
 
@@ -447,9 +459,7 @@ void loadboot (void)
 	fp = fopen(file, "r");
 	cur_file = NULL;
 	if (!fp) {
-		fprintf(stderr, "Cant open %s\n", file);
-
-		exit(EXIT_FAILURE);
+		crash("Can't open %s", file);
 	}
 
 	if(fread((char *)&bh, sizeof(bh), 1, fp) != 1)
@@ -459,7 +469,7 @@ void loadboot (void)
 	len = bh.nsec * 128;
 	rewind(fp);
 	if (fread((char *)&d[base_addr], 1, len, fp) != len)
-		crash("input too short");
+		crash("Input too short");
 
 	for(i = base_addr; len > 0; len--)
 		f[i++] |= LOADED;
@@ -481,9 +491,7 @@ void loadfile (void)
 	fp = fopen(file, "r");
 	cur_file = NULL;
 	if (!fp) {
-		fprintf(stderr, "Cant open %s\n", file);
-
-		exit(EXIT_FAILURE);
+		crash("Can't open %s", file);
 	}
 	for(;;) {
 
@@ -503,7 +511,7 @@ void loadfile (void)
 			base_addr = getc(fp);
 			base_addr = base_addr | (getc(fp) << 8);
 			if (base_addr < 0 || base_addr > 0xffff)
-				crash("Invalid base addr in input file");
+				crash("Invalid base address in input file");
 		} else {
 			if (!had_header)
 				crash("Invalid header in input file");
@@ -545,9 +553,7 @@ void c64loadfile (void)
 	fp = fopen(file, "r");
 	cur_file = NULL;
 	if (!fp) {
-		fprintf(stderr, "Cant open %s\n", file);
-
-		exit(EXIT_FAILURE);
+		crash("Can't open %s", file);
 	}
 
 	base_addr = getc(fp);
@@ -575,8 +581,7 @@ void binaryloadfile (void)
 
   if (!fp)
     {
-      fprintf (stderr, "Can't open %s\n", file);
-      exit (EXIT_FAILURE);
+      crash("Can't open %s", file);
     }
 
   i = base_address;
@@ -610,7 +615,7 @@ yywrap()
 		pre_index++;
 		yyin = fopen(cur_file, "r");
 		if (!yyin)
-			crash("Can't open predefines file");
+			crash("Can't open predefines file %s", cur_file);
 		return (0);
 	}
 }
