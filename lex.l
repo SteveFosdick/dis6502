@@ -24,9 +24,11 @@
 %{
 #define YY_NO_INPUT
 #undef ECHO
+#include <limits.h>
 #include <string.h>
 #include "dis.h"
 int lineno = 0;
+static int parse_int(char *str, int base);
 %}
 
 %option nounput
@@ -61,12 +63,12 @@ alphanum	[0-9a-zA-Z_]
 \.[Jj][Tt][Aa][Bb]2	{ return TJTAB2; }
 
 {digit}+		{
-			  sscanf(yytext, "%d", &token.ival);
+			  token.ival = parse_int(yytext, 10);
 			  return NUMBER;
 			}
 
 \${hexdigit}+		{
-			  sscanf(yytext + 1, "%x", (unsigned int*)&token.ival);
+			  token.ival = parse_int(yytext + 1, 16);
 			  return NUMBER;
 			}
 
@@ -85,3 +87,19 @@ alphanum	[0-9a-zA-Z_]
 .			{ return yytext[0]; }
 
 %%
+
+static int parse_int(char *str, int base)
+{
+	char *tail = NULL;
+	long value = 0;
+	errno = 0;
+
+	value = strtol(str, &tail, base);
+
+	if (tail == str || *tail != '\0' || errno != 0
+		|| value < INT_MIN || value > INT_MAX) {
+		crash("Error trying to convert %s to int", str);
+	}
+
+	return (int) value;
+}
