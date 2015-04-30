@@ -56,7 +56,7 @@ endif
 # let me know why so I can improve this Makefile.
 # -----------------------------------------------------------------------------
 
-VERSION = 0.12
+VERSION = 0.13
 
 PACKAGE = dis6502
 
@@ -66,7 +66,7 @@ CSRCS = main.c initopts.c ref.c print.c tbl.c trace_queue.c
 LSRCS = lex.l
 HDRS = dis.h
 MAN = dis6502.1
-MISC = COPYING README README.Bond README.Finkelstein Makefile
+MISC = COPYING README README.Bond README.Finkelstein README.Smith TODO Makefile
 
 DISTFILES = $(MISC) $(HDRS) $(CSRCS) $(LSRCS)
 DISTNAME = $(PACKAGE)-$(VERSION)
