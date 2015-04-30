@@ -34,15 +34,23 @@ struct hashslot {
 
 struct   hashslot hashtbl[HTSIZE];	/* the hash table */
 
+static
 struct hashslot *hash (addr_t loc, int allocate)
 {
 	int probes;
 	struct hashslot *hp;
 
+	/*
+	 * [phf] The hash function looks like a bad idea at first but since
+	 * loc is from a relatively small range of integers, it's usually
+	 * just fine. There is of course the possibility that we overflow
+	 * the hash table, so maybe we should track load factor and resize?
+	 * Barely 10% for the Apple 1 Basic ROM though...
+	 */
 	hp = &hashtbl[loc & HTMASK];
 	probes = 0;
 
-	while (probes< HTSIZE) {
+	while (probes < HTSIZE) {
 		if (hp->addr == loc)
 			return(hp);
 		if (hp->name == NULL && hp->ref == NULL) {
@@ -63,7 +71,7 @@ struct hashslot *hash (addr_t loc, int allocate)
 	/*NOTREACHED*/
 }
 
-void save_ref (addr_t refer, addr_t refee) 
+void save_ref (addr_t refer, addr_t refee)
 {
 	struct ref_chain *rc;
 	struct hashslot *hp;
@@ -88,7 +96,7 @@ struct ref_chain *get_ref(addr_t loc)
 	struct hashslot *hp;
 
 	hp = hash(loc, 0);
-	if (!hp) 
+	if (!hp)
 		return(NULL);
 	return(hp->ref);
 }
@@ -98,7 +106,7 @@ char * get_name(addr_t loc)
 	struct hashslot *hp;
 
 	hp = hash(loc, 0);
-	if (!hp) 
+	if (!hp)
 		return(NULL);
 	return(hp->name);
 }
