@@ -19,5 +19,3 @@ TODO
 
 - that queue is not a queue, it's a stack; figure out what it really
   should be
-
-- crash() should be printf-style, as per usual :-)
