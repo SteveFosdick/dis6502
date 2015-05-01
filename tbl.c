@@ -23,7 +23,7 @@
 
 #include "dis.h"
 
-struct info optbl[256] = {
+struct mnemonic optbl[256] = {
 	/* 00 */	{"BRK", 1, IMP|STOP},
 	/* 01 */	{"ORA", 2, INX|NORM},
 	/* 00 */	{"???", 1, ILL|NORM},

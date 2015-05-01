@@ -60,15 +60,15 @@ extern long offset[];
 #define NAMED  0x10			/* Has a name */
 #define TDONE  0x20			/* Has been traced */
 #define ISOP   0x40			/* Is a valid instruction opcode */
-#define OFFSET 0x80                     /* should be printed as an offset */
+#define OFFSET 0x80			/* should be printed as an offset */
 
-struct info {
-	char opn[4];
-	int  nb;
-	int  flag;
+struct mnemonic {
+	char name[4];			/* three-letter mnemonic name */
+	int  length;			/* number of bytes */
+	int  flags;			/* control flow and addressing mode */
 };
 
-extern struct info optbl[];
+extern struct mnemonic optbl[];
 
 /* Flags */
 

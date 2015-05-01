@@ -137,7 +137,7 @@ int pchar (int c)
 
 void print_bytes (addr_t addr)
 {
-	struct info *ip;
+	struct mnemonic *ip;
 
 	if ((f[addr] & ISOP) == 0) {
 		printf("           ");
@@ -146,7 +146,7 @@ void print_bytes (addr_t addr)
 
 	ip = &optbl[getbyte(addr)];
 
-	switch (ip->nb) {
+	switch (ip->length) {
 		case 1:
 			printf("%02x         ", getbyte(addr));
 			break;
@@ -162,17 +162,17 @@ void print_bytes (addr_t addr)
 int print_inst(addr_t addr)
 {
 	int opcode;
-	struct info *ip;
+	struct mnemonic *ip;
 	int operand;
 
 	opcode = getbyte(addr);
 	ip = &optbl[opcode];
 
-	printf("%s", ip->opn);
+	printf("%s", ip->name);
 
 	addr++;
 
-	switch(ip->nb) {
+	switch(ip->length) {
 		case 1:
 			operand = 0;  /* only to avoid "may be used
 					 unitialized" warning */
@@ -185,13 +185,13 @@ int print_inst(addr_t addr)
 			break;
 	}
 
-	if (ip->flag & REL) {
+	if (ip->flags & REL) {
 		if (operand > 127)
 			operand = (~0xff | operand);
-		operand = operand + ip->nb + addr - 1;
+		operand = operand + ip->length + addr - 1;
 	}
 
-	switch (ip->flag & ADRMASK) {
+	switch (ip->flags & ADRMASK) {
 		case IMM:
 			printf("\t#$%02x\t; %d %c", operand, operand, pchar(operand));
 			break;
@@ -224,7 +224,7 @@ int print_inst(addr_t addr)
 			break;
 	}
 
-	return(ip->nb);
+	return(ip->length);
 
 }
 

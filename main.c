@@ -102,7 +102,7 @@ void add_trace (addr_t addr)
 void trace_inst (addr_t addr)
 {
   int opcode;
-  struct info *ip;
+  struct mnemonic *ip;
   int operand;
   int istart;
 
@@ -117,7 +117,7 @@ void trace_inst (addr_t addr)
       opcode = getbyte(addr);
       ip = &optbl[opcode];
 
-      if (ip->flag & ILL)
+      if (ip->flags & ILL)
 	return;
 
       f[addr] |= ISOP;
@@ -126,7 +126,7 @@ void trace_inst (addr_t addr)
 
       /* Get the operand */
 
-      switch(ip->nb)
+      switch(ip->length)
 	{
 	case 1:
 	  operand = 0;  /* only to avoid "may be used unitialized" warning */
@@ -144,7 +144,7 @@ void trace_inst (addr_t addr)
 
       /* Mark data references */
 
-      switch (ip->flag & ADRMASK)
+      switch (ip->flags & ADRMASK)
 	{
 	case IMM:
 	case ACC:
@@ -153,7 +153,7 @@ void trace_inst (addr_t addr)
 	case IND:
 	  break;
 	case ABS:
-	  if (ip->flag & (JUMP | FORK))
+	  if (ip->flags & (JUMP | FORK))
 	    break;
 	  /* Fall into */
 	case ABX:
@@ -173,7 +173,7 @@ void trace_inst (addr_t addr)
 
       /* Trace the next instruction */
 
-      switch (ip->flag & CTLMASK)
+      switch (ip->flags & CTLMASK)
 	{
 	case NORM:
 	  break;
@@ -183,7 +183,7 @@ void trace_inst (addr_t addr)
 	  add_trace(operand);
 	  return;
 	case FORK:
-	  if (ip->flag & REL)
+	  if (ip->flags & REL)
 	    {
 	      if (operand > 127)
 		operand = (~0xff | operand);
