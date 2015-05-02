@@ -53,14 +53,14 @@ extern long offset[];
 
 /* f bits */
 
-#define LOADED 1			/* Location loaded */
-#define JREF   2			/* Referenced as jump/branch dest */
-#define DREF   4			/* Referenced as data */
-#define SREF   8			/* Referenced as subroutine dest */
-#define NAMED  0x10			/* Has a name */
-#define TDONE  0x20			/* Has been traced */
-#define ISOP   0x40			/* Is a valid instruction opcode */
-#define OFFSET 0x80			/* should be printed as an offset */
+#define LOADED (1 << 0)		/* Location loaded */
+#define JREF   (1 << 1)		/* Referenced as jump/branch dest */
+#define DREF   (1 << 2)		/* Referenced as data */
+#define SREF   (1 << 3)		/* Referenced as subroutine dest */
+#define NAMED  (1 << 4)		/* Has a name */
+#define TDONE  (1 << 5)		/* Has been traced */
+#define ISOP   (1 << 6)		/* Is a valid instruction opcode */
+#define OFFSET (1 << 7)		/* should be printed as an offset */
 
 struct mnemonic {
 	char name[4];			/* three-letter mnemonic name */
@@ -74,29 +74,29 @@ extern struct mnemonic optbl[];
 
 /* Where control goes */
 
-#define NORM 1
-#define JUMP 2
-#define FORK 4
-#define STOP 8
+#define NORM (1 << 0)
+#define JUMP (1 << 1)
+#define FORK (1 << 2)
+#define STOP (1 << 3)
 
 #define CTLMASK (NORM|JUMP|FORK|STOP)
 
 /* Instruction format */
 
-#define IMM  0x20
-#define ABS  0x40
-#define ACC  0x80
-#define IMP  0x100
-#define INX  0x200
-#define INY  0x400
-#define ZPX  0x800
-#define ABX  0x1000
-#define ABY  0x2000
-#define REL  0x4000
-#define IND  0x8000
-#define ZPY  0x10000
-#define ZPG  0x20000
-#define ILL  0x40000
+#define IMM  (1 << 5)
+#define ABS  (1 << 6)
+#define ACC  (1 << 7)
+#define IMP  (1 << 8)
+#define INX  (1 << 9)
+#define INY  (1 << 10)
+#define ZPX  (1 << 11)
+#define ABX  (1 << 12)
+#define ABY  (1 << 13)
+#define REL  (1 << 14)
+#define IND  (1 << 15)
+#define ZPY  (1 << 16)
+#define ZPG  (1 << 17)
+#define ILL  (1 << 18)
 
 #define ADRMASK (IMM|ABS|ACC|IMP|INX|INY|ZPX|ABX|ABY|REL|IND|ZPY|ZPG|ILL)
 
@@ -126,7 +126,6 @@ extern FILE *yyin, *yyout;
 int lineno;
 
 int yywrap(), yyerror();
-void *emalloc(size_t bytes) __attribute__((malloc));
 
 typedef union  {
 	int ival;
@@ -164,6 +163,7 @@ addr_t pop_trace_queue (void);
 
 /* in main.c: */
 noreturn void crash (const char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
+void *emalloc(size_t bytes) __attribute__((malloc));
 void get_predef (void);
 
 void loadboot (void);
