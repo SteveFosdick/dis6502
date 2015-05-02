@@ -80,62 +80,7 @@ static int print_label (addr_t i)
     return (0);
 }
 
-void dumpitout (void)
-{
-  uint32_t i;  /* must be larger than an addr_t */
-
-  for(i = 0; i<0x10000;)
-    {
-      if (f[i] & LOADED)
-	{
-	  if ((i == 0) || (! (f[i-1] & LOADED)))
-	    printf ("\t.org\t$%04x\n", i);
-
-	  if (f[i] & SREF && f[i] & ISOP)
-	    printf("\n");
-
-	  if (! asmout)
-	    {
-	      printf("%04x  ",i);
-	      print_bytes(i);
-	    }
-	  if (print_label(i))
-	    printf (":");
-	  printf ("\t");
-	  if (f[i] & ISOP)
-	    i += print_inst(i);
-	  else
-	    i += print_data(i);
-	  printf("\n");
-
-	}
-      else
-	{
-	  if (print_label (i))
-	    {
-	      if (i <= 0xff)
-		printf ("\t.equ\t$%02x\n", i);
-	      else
-		printf ("\t.equ\t$%04x\n", i);
-	    }
-	  i++;
-	}
-    }
-
-  if (! asmout)
-    print_refs();
-}
-
-int pchar (int c)
-{
-        if (sevenbit)
-                c &= 0x7f;
-	if (isascii(c) && isprint(c))
-		return(c);
-	return('.');
-}
-
-void print_bytes (addr_t addr)
+static void print_bytes (addr_t addr)
 {
 	struct mnemonic *ip;
 
@@ -159,7 +104,16 @@ void print_bytes (addr_t addr)
 	}
 }
 
-int print_inst(addr_t addr)
+static int pchar (int c)
+{
+        if (sevenbit)
+                c &= 0x7f;
+	if (isascii(c) && isprint(c))
+		return(c);
+	return('.');
+}
+
+static int print_inst(addr_t addr)
 {
 	int opcode;
 	struct mnemonic *ip;
@@ -228,7 +182,7 @@ int print_inst(addr_t addr)
 
 }
 
-int print_data (addr_t i)
+static int print_data (addr_t i)
 {
 	int count;
 	int j;
@@ -260,7 +214,7 @@ int print_data (addr_t i)
 	return (count);
 }
 
-void print_refs (void)
+static void print_refs (void)
 {
 	char tname[50];
 	char cmd[200];
@@ -308,4 +262,50 @@ void print_refs (void)
 	fflush (stdout);
 
 	system(cmd);
+}
+
+void dumpitout (void)
+{
+  uint32_t i;  /* must be larger than an addr_t */
+
+  for(i = 0; i<0x10000;)
+    {
+      if (f[i] & LOADED)
+	{
+	  if ((i == 0) || (! (f[i-1] & LOADED)))
+	    printf ("\t.org\t$%04x\n", i);
+
+	  if (f[i] & SREF && f[i] & ISOP)
+	    printf("\n");
+
+	  if (! asmout)
+	    {
+	      printf("%04x  ",i);
+	      print_bytes(i);
+	    }
+	  if (print_label(i))
+	    printf (":");
+	  printf ("\t");
+	  if (f[i] & ISOP)
+	    i += print_inst(i);
+	  else
+	    i += print_data(i);
+	  printf("\n");
+
+	}
+      else
+	{
+	  if (print_label (i))
+	    {
+	      if (i <= 0xff)
+		printf ("\t.equ\t$%02x\n", i);
+	      else
+		printf ("\t.equ\t$%04x\n", i);
+	    }
+	  i++;
+	}
+    }
+
+  if (! asmout)
+    print_refs();
 }

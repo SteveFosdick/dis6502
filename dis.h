@@ -144,11 +144,6 @@ void initopts (int argc, char *argv[]);
 
 /* in print.c: */
 void dumpitout (void);
-int pchar (int c);
-void print_bytes (addr_t addr);
-int print_inst(addr_t addr);
-int print_data (addr_t i);
-void print_refs (void);
 
 /* in ref.c: */
 void save_ref (addr_t refer, addr_t refee);
