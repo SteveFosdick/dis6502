@@ -19,3 +19,7 @@ TODO
 
 - that queue is not a queue, it's a stack; figure out what it really
   should be
+
+- it would be nice to use my own .equ defines in the .def file; for example
+  to define the label of a function and to .trace it in the next line without
+  having to repeat the address itself
