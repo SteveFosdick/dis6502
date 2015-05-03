@@ -36,12 +36,12 @@ typedef uint16_t addr_t;
 
 extern char *predef[];
 extern int  npredef;
-extern char *file;
+extern char *global_file;
 extern char *progname;
 
 extern int  bopt;
 enum boot_mode { UNKNOWN, RAW_BINARY, ATARI_LOAD, C64_LOAD, ATARI_BOOT };
-extern int base_address, vector_address;
+extern int global_base_address, global_vector_address;
 
 extern int asmout;
 extern unsigned char f[];

@@ -274,7 +274,7 @@ void do_jtab2 (void)
 }
 
 
-static void loadboot (void)
+static void loadboot (const char *file)
 {
 	struct boot_hdr {
 		unsigned char flags;
@@ -305,6 +305,8 @@ static void loadboot (void)
 	if (fread((char *)&d[base_addr], 1, len, fp) != len)
 		crash("Input too short");
 
+	fclose(fp);
+
 	for(i = base_addr; len > 0; len--)
 		f[i++] |= LOADED;
 
@@ -312,7 +314,7 @@ static void loadboot (void)
 }
 
 
-static void loadfile (void)
+static void loadfile (const char *file)
 {
 	FILE *fp;
 	int base_addr;
@@ -336,6 +338,7 @@ static void loadfile (void)
 				i = getword(RUNLOC);
 				start_trace(i, "**RUN**");
 			}
+			fclose(fp);
 			return;
 		}
 
@@ -378,7 +381,7 @@ static void loadfile (void)
 }
 
 
-static void c64loadfile (void)
+static void c64loadfile (const char *file)
 {
 	FILE *fp;
 	addr_t base_addr,i;
@@ -398,11 +401,13 @@ static void c64loadfile (void)
 		f[i++] |= LOADED;
 		}
 
+	fclose(fp);
+
 	start_trace(base_addr, "**C64BIN**");
 }
 
 
-static void binaryloadfile (void)
+static void binaryloadfile (const char *file, int base_address, int vector_address)
 {
   FILE *fp;
   addr_t i;
@@ -425,6 +430,8 @@ static void binaryloadfile (void)
       d [i] = c;
       f [i++] |= LOADED;
     }
+
+  fclose(fp);
 
   reset = vector_address - 4;
   irq = vector_address - 2;
@@ -455,16 +462,16 @@ int main (int argc, char *argv[])
 	switch (bopt)
 	  {
 	  case RAW_BINARY:
-	    binaryloadfile();
+	    binaryloadfile(global_file, global_base_address, global_vector_address);
 	    break;
 	  case ATARI_LOAD:
-	    loadfile();
+	    loadfile(global_file);
 	    break;
 	  case C64_LOAD:
-	    c64loadfile();
+	    c64loadfile(global_file);
 	    break;
 	  case ATARI_BOOT:
-	    loadboot();
+	    loadboot(global_file);
 	    break;
 	  default:
 	    crash ("File format must be specified");

@@ -10,11 +10,11 @@
 
 char *predef[NPREDEF];
 int  npredef = 0;
-char *file;
+char *global_file;
 char *progname = "dis";
 int  bopt = UNKNOWN;
-int base_address = 0;
-int vector_address = 0x10000;
+int global_base_address = 0;
+int global_vector_address = 0x10000;
 int asmout = 0;
 
 static void usage(void)
@@ -58,7 +58,7 @@ void initopts(int argc, char *argv[])
 					argc--;
 					break;
 				case 'r':
-					base_address = strtoul(*++argv, &p, 0);
+					global_base_address = strtoul(*++argv, &p, 0);
 					if (*p) {
 						crash("Base address must be specified");
 					}
@@ -66,7 +66,7 @@ void initopts(int argc, char *argv[])
 					argc--;
 					break;
 				case 'v':
-					vector_address = strtoul(*++argv, &p, 0);
+					global_vector_address = strtoul(*++argv, &p, 0);
 					if (*p) {
 						crash("Vector address required");
 					}
@@ -89,7 +89,7 @@ void initopts(int argc, char *argv[])
 				}
 			}
 		} else if (!fileset) {
-			file = *argv;
+			global_file = *argv;
 			fileset++;
 		} else {
 			usage();
