@@ -17,7 +17,7 @@ int base_address = 0;
 int vector_address = 0x10000;
 int asmout = 0;
 
-void usage (void)
+static void usage (void)
 {
 	fprintf(
 		stderr,

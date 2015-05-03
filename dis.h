@@ -122,10 +122,8 @@ char *get_name(addr_t loc);
 #define EQS 265
 #define OFS 266
 
-extern FILE *yyin, *yyout;
+extern FILE *yyin;
 int lineno;
-
-int yywrap(), yyerror();
 
 typedef union  {
 	int ival;
@@ -161,9 +159,5 @@ noreturn void crash (const char *fmt, ...) __attribute__ ((format(printf, 1, 2))
 void *emalloc(size_t bytes) __attribute__((malloc));
 void get_predef (void);
 
-void loadboot (void);
-void loadfile (void);
-void c64loadfile (void);
-void binaryloadfile (void);
 
 #endif /* _DIS6502_H */

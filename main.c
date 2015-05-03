@@ -274,6 +274,168 @@ void do_jtab2 (void)
 }
 
 
+static void loadboot (void)
+{
+	struct boot_hdr {
+		unsigned char flags;
+		unsigned char nsec;
+		unsigned char base_low;
+		unsigned char base_hi;
+		unsigned char init_low;
+		unsigned char init_hi;
+	} bh;
+
+	FILE *fp;
+	int base_addr;
+	int i;
+	size_t len;
+
+	fp = fopen(file, "r");
+	cur_file = NULL;
+	if (!fp) {
+		crash("Can't open %s", file);
+	}
+
+	if(fread((char *)&bh, sizeof(bh), 1, fp) != 1)
+		crash("Input too short");
+
+	base_addr = bh.base_low + (bh.base_hi << 8);
+	len = bh.nsec * 128;
+	rewind(fp);
+	if (fread((char *)&d[base_addr], 1, len, fp) != len)
+		crash("Input too short");
+
+	for(i = base_addr; len > 0; len--)
+		f[i++] |= LOADED;
+
+	start_trace(base_addr+6, "**BOOT**");
+}
+
+
+static void loadfile (void)
+{
+	FILE *fp;
+	int base_addr;
+	int last_addr;
+	int i;
+	int had_header;
+	int tmp;
+
+	had_header = 0;
+	fp = fopen(file, "r");
+	cur_file = NULL;
+	if (!fp) {
+		crash("Can't open %s", file);
+	}
+	for(;;) {
+
+		i = getc(fp);
+
+		if (i == EOF) {
+			if (f[RUNLOC] & LOADED & f[RUNLOC + 1]) {
+				i = getword(RUNLOC);
+				start_trace(i, "**RUN**");
+			}
+			return;
+		}
+
+		i = i | (getc(fp) << 8);
+		if (i == 0xffff)  {
+			had_header = 1;
+			base_addr = getc(fp);
+			base_addr = base_addr | (getc(fp) << 8);
+			if (base_addr < 0 || base_addr > 0xffff)
+				crash("Invalid base address in input file");
+		} else {
+			if (!had_header)
+				crash("Invalid header in input file");
+			base_addr = i;
+		}
+
+		last_addr = getc(fp);
+		last_addr = last_addr | (getc(fp) << 8);
+		if (last_addr < base_addr || last_addr > 0xffff)
+			crash("Invalid length in input file");
+
+		printf("Load:  %4x -> %4x\n", base_addr, last_addr);
+		for(i = base_addr; i <= last_addr; i++) {
+			tmp = getc(fp);
+			if (tmp == EOF)
+				crash("File too small");
+			d[i] = tmp;
+			f[i] |= LOADED;
+		}
+
+		if (f[INITLOC] & LOADED & f[INITLOC + 1])  {
+			i = getword(INITLOC);
+			start_trace(i, "**INIT**");
+		}
+
+		f[INITLOC] &= ~LOADED;
+		f[INITLOC + 1] &= ~LOADED;
+	}
+
+}
+
+
+static void c64loadfile (void)
+{
+	FILE *fp;
+	addr_t base_addr,i;
+	int c;
+
+	fp = fopen(file, "r");
+	cur_file = NULL;
+	if (!fp) {
+		crash("Can't open %s", file);
+	}
+
+	base_addr = getc(fp);
+	i = ( base_addr += ( (unsigned int)getc(fp) << 8 ) );
+
+	while( (c = getc(fp)) != EOF) {
+		d[i] = c;
+		f[i++] |= LOADED;
+		}
+
+	start_trace(base_addr, "**C64BIN**");
+}
+
+
+static void binaryloadfile (void)
+{
+  FILE *fp;
+  addr_t i;
+  int c;
+  addr_t reset, irq, nmi;
+
+  fp = fopen (file, "r");
+
+  cur_file = NULL;
+
+  if (!fp)
+    {
+      crash("Can't open %s", file);
+    }
+
+  i = base_address;
+
+  while ((c = getc(fp)) != EOF)
+    {
+      d [i] = c;
+      f [i++] |= LOADED;
+    }
+
+  reset = vector_address - 4;
+  irq = vector_address - 2;
+  nmi = vector_address - 6;
+
+  fprintf (stderr, "base: %04x  reset: %04x  irq: %04x  nmi: %04x\n", base_address, reset, irq, nmi);
+
+  start_trace ((d [reset + 1] << 8) | d [reset], "RESET");
+  start_trace ((d [irq   + 1] << 8) | d [irq  ], "IRQ");
+  start_trace ((d [nmi   + 1] << 8) | d [nmi  ], "NMI");
+}
 
 int main (int argc, char *argv[])
 {
@@ -451,168 +613,6 @@ void get_predef (void)
 		}
 }
 
-void loadboot (void)
-{
-	struct boot_hdr {
-		unsigned char flags;
-		unsigned char nsec;
-		unsigned char base_low;
-		unsigned char base_hi;
-		unsigned char init_low;
-		unsigned char init_hi;
-	} bh;
-
-	FILE *fp;
-	int base_addr;
-	int i;
-	size_t len;
-
-	fp = fopen(file, "r");
-	cur_file = NULL;
-	if (!fp) {
-		crash("Can't open %s", file);
-	}
-
-	if(fread((char *)&bh, sizeof(bh), 1, fp) != 1)
-		crash("Input too short");
-
-	base_addr = bh.base_low + (bh.base_hi << 8);
-	len = bh.nsec * 128;
-	rewind(fp);
-	if (fread((char *)&d[base_addr], 1, len, fp) != len)
-		crash("Input too short");
-
-	for(i = base_addr; len > 0; len--)
-		f[i++] |= LOADED;
-
-	start_trace(base_addr+6, "**BOOT**");
-}
-
-
-void loadfile (void)
-{
-	FILE *fp;
-	int base_addr;
-	int last_addr;
-	int i;
-	int had_header;
-	int tmp;
-
-	had_header = 0;
-	fp = fopen(file, "r");
-	cur_file = NULL;
-	if (!fp) {
-		crash("Can't open %s", file);
-	}
-	for(;;) {
-
-		i = getc(fp);
-
-		if (i == EOF) {
-			if (f[RUNLOC] & LOADED & f[RUNLOC + 1]) {
-				i = getword(RUNLOC);
-				start_trace(i, "**RUN**");
-			}
-			return;
-		}
-
-		i = i | (getc(fp) << 8);
-		if (i == 0xffff)  {
-			had_header = 1;
-			base_addr = getc(fp);
-			base_addr = base_addr | (getc(fp) << 8);
-			if (base_addr < 0 || base_addr > 0xffff)
-				crash("Invalid base address in input file");
-		} else {
-			if (!had_header)
-				crash("Invalid header in input file");
-			base_addr = i;
-		}
-
-		last_addr = getc(fp);
-		last_addr = last_addr | (getc(fp) << 8);
-		if (last_addr < base_addr || last_addr > 0xffff)
-			crash("Invalid length in input file");
-
-		printf("Load:  %4x -> %4x\n", base_addr, last_addr);
-		for(i = base_addr; i <= last_addr; i++) {
-			tmp = getc(fp);
-			if (tmp == EOF)
-				crash("File too small");
-			d[i] = tmp;
-			f[i] |= LOADED;
-		}
-
-		if (f[INITLOC] & LOADED & f[INITLOC + 1])  {
-			i = getword(INITLOC);
-			start_trace(i, "**INIT**");
-		}
-
-		f[INITLOC] &= ~LOADED;
-		f[INITLOC + 1] &= ~LOADED;
-	}
-
-}
-
-
-void c64loadfile (void)
-{
-	FILE *fp;
-	addr_t base_addr,i;
-	int c;
-
-	fp = fopen(file, "r");
-	cur_file = NULL;
-	if (!fp) {
-		crash("Can't open %s", file);
-	}
-
-	base_addr = getc(fp);
-	i = ( base_addr += ( (unsigned int)getc(fp) << 8 ) );
-
-	while( (c = getc(fp)) != EOF) {
-		d[i] = c;
-		f[i++] |= LOADED;
-		}
-
-	start_trace(base_addr, "**C64BIN**");
-}
-
-
-void binaryloadfile (void)
-{
-  FILE *fp;
-  addr_t i;
-  int c;
-  addr_t reset, irq, nmi;
-
-  fp = fopen (file, "r");
-
-  cur_file = NULL;
-
-  if (!fp)
-    {
-      crash("Can't open %s", file);
-    }
-
-  i = base_address;
-
-  while ((c = getc(fp)) != EOF)
-    {
-      d [i] = c;
-      f [i++] |= LOADED;
-    }
-
-  reset = vector_address - 4;
-  irq = vector_address - 2;
-  nmi = vector_address - 6;
-
-  fprintf (stderr, "base: %04x  reset: %04x  irq: %04x  nmi: %04x\n", base_address, reset, irq, nmi);
-
-  start_trace ((d [reset + 1] << 8) | d [reset], "RESET");
-  start_trace ((d [irq   + 1] << 8) | d [irq  ], "IRQ");
-  start_trace ((d [nmi   + 1] << 8) | d [nmi  ], "NMI");
-}
 
 int
 yywrap()
