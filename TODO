@@ -23,3 +23,11 @@ TODO
 - it would be nice to use my own .equ defines in the .def file; for example
   to define the label of a function and to .trace it in the next line without
   having to repeat the address itself
+
+- it would also be nice to be able to load multiple binary files, for example
+  the BASIC and KERNAL ROMS for the C64; there's quite a bit of refactoring
+  to do for that though, ouch; adding it for raw files makes a lot of sense,
+  maybe adding it for C64 and Atari files makes less sense since those get
+  loaded to the same address and will conflict all the time; but if we have
+  code to detect a conflict, well, it'll be up to the user to deal with that
+  won't it?
