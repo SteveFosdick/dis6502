@@ -60,7 +60,7 @@ VERSION = 0.13
 
 PACKAGE = dis6502
 
-TARGETS = dis6502 dis6502.1
+TARGETS = dis6502 dis6502.1 dis6502.man
 
 CSRCS = main.c initopts.c ref.c print.c tbl.c trace_queue.c
 LSRCS = lex.l
@@ -84,8 +84,9 @@ OBJS = $(ALL_CSRCS:.c=.o)
 all: $(TARGETS)
 
 dis6502.1: dis.rst
-	rst2man.py dis.rst >dis6502.1
-	# nroff -man dis6502.1 | less
+	rst2man.py dis.rst >$@
+dis6502.man: dis6502.1
+	nroff -man dis6502.1 >$@
 
 dist: $(DISTFILES)
 	-rm -rf $(DISTNAME)
@@ -96,7 +97,7 @@ dist: $(DISTFILES)
 
 
 clean:
-	rm -f $(OBJS) $(AUTO_CSRCS) $(MAN)
+	rm -f $(OBJS) $(AUTO_CSRCS) $(MAN) dis6502.man
 
 
 dis6502:	$(OBJS)
