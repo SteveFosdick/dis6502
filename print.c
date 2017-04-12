@@ -47,7 +47,7 @@ struct print_cfg pf_beebasm = {
     .imm  = "#&%02X",
     .equ  = "%s\t=\t",
     .org  = "\tORG\t",
-    .data = "EQUS"
+    .data = "EQUB"
 };
 
 struct print_cfg pf_lanc = {
