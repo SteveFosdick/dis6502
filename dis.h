@@ -108,6 +108,18 @@ struct ref_chain {
 struct ref_chain *get_ref(addr_t loc);
 char *get_name(addr_t loc);
 
+struct print_cfg {
+    const char *lab;
+    const char *byte;
+    const char *word;
+    const char *imm;
+    const char *equ;
+    const char *org;
+    const char *data;
+};
+
+extern struct print_cfg pf_orig, pf_beebasm, pf_lanc, *pf_selected;
+
 /* lex junk */
 
 #define EQ 256

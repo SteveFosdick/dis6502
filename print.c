@@ -30,6 +30,37 @@
 
 #include "dis.h"
 
+struct print_cfg pf_orig = {
+    .lab  = "%s:\t",
+    .byte = "$%02x",
+    .word = "$%04x",
+    .imm  = "#$%02x",
+    .equ  = "%s\t.equ\t",
+    .org  = "\t.org\t",
+    .data = ".byte"
+};
+
+struct print_cfg pf_beebasm = {
+    .lab  = ".%s\t",
+    .byte = "&%02X",
+    .word = "&%04X",
+    .imm  = "#&%02X",
+    .equ  = "%s\t=\t",
+    .org  = "\tORG\t",
+    .data = "EQUS"
+};
+
+struct print_cfg pf_lanc = {
+    .lab  = "%s:\t",
+    .byte = "$%02X",
+    .word = "$%04X",
+    .imm  = "#$%02X",
+    .equ  = "%s\tEQU\t",
+    .org  = "\tORG\t",
+    .data = "DFB"
+};
+
+struct print_cfg *pf_selected;
 
 static char *lname (addr_t i)
 {
@@ -68,17 +99,30 @@ static char *lname (addr_t i)
 }
 
 
-static int print_label (addr_t i)
+static void print_label (addr_t i)
 {
   if ((f[i] & (NAMED | JREF | SREF | DREF)) &&
       ! (f [i] & OFFSET))
     {
-      printf("%s", lname(i));
-      return (1);
+      printf(pf_selected->lab, lname(i));
     }
   else
-    return (0);
+      putchar('\t');
 }
+
+static void print_equ (addr_t i)
+{
+  if ((f[i] & (NAMED | JREF | SREF | DREF)) &&
+      ! (f [i] & OFFSET))
+    {
+      printf(pf_selected->equ, lname(i));
+      if (i <= 0xff)
+        printf (pf_selected->byte, i);
+      else
+        printf (pf_selected->word, i);
+      putchar('\n');
+    }
+}    
 
 static void print_bytes (addr_t addr)
 {
@@ -147,7 +191,9 @@ static int print_inst(addr_t addr)
 
 	switch (ip->flags & ADRMASK) {
 		case IMM:
-			printf("\t#$%02x\t; %d %c", operand, operand, pchar(operand));
+                        putchar('\t');
+                        printf(pf_selected->imm, operand);
+			printf("\t; %d %c", operand, pchar(operand));
 			break;
 		case ACC:
 		case IMP:
@@ -189,7 +235,9 @@ static int print_data (addr_t i)
 	int start;
 
 	start = i;
-	printf(".byte\t$%02x", getbyte(i));
+        fputs(pf_selected->data, stdout);
+        putchar('\t');
+        printf(pf_selected->byte, getbyte(i));
 	count = 1;
 	i++;
 
@@ -197,19 +245,22 @@ static int print_data (addr_t i)
 		if (f[i] & (JREF | SREF | DREF) || ((f[i] & LOADED) == 0))
 			break;
 		else
-			printf(",$%02x", getbyte(i));
+                {
+                    putchar(',');
+                    printf(pf_selected->byte, getbyte(i));
+                }
 		i++;
 		count++;
 	}
 	for (j = count; j < 8; j++)
 		printf("   ");
 
-	printf("\t; \"");
+	fputs("\t; \"", stdout);
 
 	for (j = start; j < i ; j++)
-			printf("%c", pchar((int)getbyte(j)));
+            putchar(pchar((int)getbyte(j)));
 
-	printf ("\"");
+	putchar('"');
 
 	return (count);
 }
@@ -273,35 +324,30 @@ void dumpitout (void)
       if (f[i] & LOADED)
 	{
 	  if ((i == 0) || (! (f[i-1] & LOADED)))
-	    printf ("\t.org\t$%04x\n", i);
+            {
+              putchar('\n');
+              fputs(pf_selected->org, stdout);
+	      printf (pf_selected->word, i);
+            }
 
 	  if (f[i] & SREF && f[i] & ISOP)
-	    printf("\n");
+              putchar('\n');
 
 	  if (! asmout)
 	    {
 	      printf("%04x  ",i);
 	      print_bytes(i);
 	    }
-	  if (print_label(i))
-	    printf (":");
-	  printf ("\t");
+          print_label(i);
 	  if (f[i] & ISOP)
 	    i += print_inst(i);
 	  else
 	    i += print_data(i);
-	  printf("\n");
-
+	  putchar('\n');
 	}
       else
 	{
-	  if (print_label (i))
-	    {
-	      if (i <= 0xff)
-		printf ("\t.equ\t$%02x\n", i);
-	      else
-		printf ("\t.equ\t$%04x\n", i);
-	    }
+          print_equ(i);
 	  i++;
 	}
     }

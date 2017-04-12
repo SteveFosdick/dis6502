@@ -29,7 +29,10 @@ static void usage(void)
 		"  options:  -a             assembly output\n"
 		"            -p <file>      predefines\n"
 		"            -v <address>   alternate vector address\n"
-		"            -7             mask character data to 7-bit\n",
+		"            -7             mask character data to 7-bit\n"
+                "  output:   -O             Original format (default)\n"
+                "            -L             Lancaster format (similar to ADE)\n"
+                "            -B             BeebAsm format\n",
 		progname
 	);
 	exit(EXIT_FAILURE);
@@ -43,6 +46,7 @@ void initopts(int argc, char *argv[])
 	int fileset = 0;
 
 	progname = argv[0];
+        pf_selected = &pf_orig;
 
 	while (--argc) {
 		if ((*++argv)[0] == '-') {
@@ -84,6 +88,15 @@ void initopts(int argc, char *argv[])
 				case '7':
 					sevenbit = 1;
 					break;
+                                case 'B':
+                                        pf_selected = &pf_beebasm;
+                                        break;
+                                case 'L':
+                                        pf_selected = &pf_lanc;
+                                        break;
+                                case 'O':
+                                        pf_selected = &pf_orig;
+                                        break;
 				default:
 					crash("Invalid option letter");
 				}
