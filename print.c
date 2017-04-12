@@ -31,7 +31,7 @@
 #include "dis.h"
 
 
-static char *lname (addr_t i, int offset_ok)
+static char *lname (addr_t i)
 {
 	static char buf[20];
 	char t;
@@ -73,7 +73,7 @@ static int print_label (addr_t i)
   if ((f[i] & (NAMED | JREF | SREF | DREF)) &&
       ! (f [i] & OFFSET))
     {
-      printf("%s", lname(i, 0));
+      printf("%s", lname(i));
       return (1);
     }
   else
@@ -126,10 +126,10 @@ static int print_inst(addr_t addr)
 
 	addr++;
 
+        operand = 0;  /* only to avoid "may be used
+                         unitialized" warning */
 	switch(ip->length) {
 		case 1:
-			operand = 0;  /* only to avoid "may be used
-					 unitialized" warning */
 			break;
 		case 2:
 			operand = getbyte(addr);
@@ -155,24 +155,24 @@ static int print_inst(addr_t addr)
 		case REL:
 		case ABS:
 		case ZPG:
-			printf("\t%s", lname(operand, 1));
+			printf("\t%s", lname(operand));
 			break;
 		case IND:
-			printf("\t(%s)", lname(operand, 1));
+			printf("\t(%s)", lname(operand));
 			break;
 		case ABX:
 		case ZPX:
-			printf("\t%s,X", lname(operand, 1));
+			printf("\t%s,X", lname(operand));
 			break;
 		case ABY:
 		case ZPY:
-			printf("\t%s,Y", lname(operand, 1));
+			printf("\t%s,Y", lname(operand));
 			break;
 		case INX:
-			printf("\t(%s,X)", lname(operand, 1));
+			printf("\t(%s,X)", lname(operand));
 			break;
 		case INY:
-			printf("\t(%s),Y", lname(operand, 1));
+			printf("\t(%s),Y", lname(operand));
 			break;
 		default:
 			break;
@@ -238,14 +238,14 @@ static void print_refs (void)
 				break;
 			}
 
-			fprintf(fp, "%-8s  %04x   ", lname(i, 1), i);
+			fprintf(fp, "%-8s  %04x   ", lname(i), i);
 			npline = 0;
 			while (rp) {
 				fprintf(fp, "%04x ", rp->who);
 				npline++;
 				if (npline == 12) {
 					fprintf(fp,"\n");
-					fprintf(fp,"%-8s  %04x   ",lname(i, 1),i);
+					fprintf(fp,"%-8s  %04x   ",lname(i),i);
 					npline = 0;
 				}
 				rp = rp->next;
