@@ -265,54 +265,63 @@ static int print_data (addr_t i)
 	return (count);
 }
 
+struct label {
+    addr_t addr;
+    char   label[50];
+};
+
+int qs_lab_cmp(const void *a, const void *b)
+{
+    const struct label *la = (const struct label *)a;
+    const struct label *lb = (const struct label *)b;
+    return strcmp(la->label, lb->label);
+}
+
 static void print_refs (void)
 {
-	char tname[50];
-	char cmd[200];
-	FILE *fp;
+        int num_labels;
+        struct label *labels, *lp, *le;
 	struct ref_chain *rp;
 	uint32_t i;  /* must be larger than an addr_t */
 	int npline;
 
-	sprintf(tname, "dis.%d", getpid());
-	sprintf(cmd, "sort %s; rm %s", tname, tname);
+	for (num_labels = i = 0; i<0x10000; i++)
+            if(f[i] & (JREF|SREF|DREF))
+                num_labels++;
+        
+        labels = emalloc(num_labels * sizeof(struct label));
 
-	fp = fopen(tname, "w");
-	if (!fp)
-		crash("Can't open temporary file %s", tname);
+	for (lp = labels, i = 0; i<0x10000; i++) {
+            if(f[i] & (JREF|SREF|DREF)) {
+                lp->addr = i;
+                strncpy(lp->label, lname(i), sizeof lp->label);
+                lp++;
+            }
+        }
 
-	for (i = 0; i<0x10000; i++) {
-		if(f[i] & (JREF|SREF|DREF)) {
-			rp = get_ref(i);
-			if (!rp) {
-				fprintf(stderr, "No ref %d\n", i);
-				break;
-			}
+        qsort(labels, num_labels, sizeof(struct label), qs_lab_cmp);
 
-			fprintf(fp, "%-8s  %04x   ", lname(i), i);
-			npline = 0;
-			while (rp) {
-				fprintf(fp, "%04x ", rp->who);
-				npline++;
-				if (npline == 12) {
-					fprintf(fp,"\n");
-					fprintf(fp,"%-8s  %04x   ",lname(i),i);
-					npline = 0;
-				}
-				rp = rp->next;
-			}
-			fprintf(fp, "\n");
-		}
-
-	}
-
-	fclose(fp);
-
-	printf("\n\n\n\n\nCross References\n\n");
+	fputs("\n\n\n\n\nCross References\n\n", stdout);
 	printf("%-8s  Value  References\n", "Symbol");
-	fflush (stdout);
-
-	system(cmd);
+        for (lp = labels, le = labels + num_labels; lp < le; lp++) {
+            rp = get_ref(lp->addr);
+            if (!rp) {
+                fprintf(stderr, "No ref %d\n", lp->addr);
+                break;
+            }
+            printf("%-8s  %04x   ", lp->label, lp->addr);
+            npline = 0;
+            while (rp) {
+                printf("%04x ", rp->who);
+                npline++;
+                if (npline == 12) {
+                    printf("\n%-8s  %04x   ", lp->label, lp->addr);
+                    npline = 0;
+                }
+                rp = rp->next;
+            }
+            putchar('\n');
+        }
 }
 
 void dumpitout (void)
