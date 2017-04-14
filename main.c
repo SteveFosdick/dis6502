@@ -150,7 +150,6 @@ void trace_inst (addr_t addr)
 	case ACC:
 	case IMP:
 	case REL:
-	case IND:
 	  break;
 	case ABS:
 	  if (ip->flags & (JUMP | FORK))
@@ -158,6 +157,7 @@ void trace_inst (addr_t addr)
 	  /* Fall into */
 	case ABX:
 	case ABY:
+	case IND:
 	case INX:
 	case INY:
 	case ZPG:
