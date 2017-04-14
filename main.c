@@ -591,6 +591,14 @@ void get_predef (void)
 				offset [loc + i] = -i;
 			      }
 			    break;
+                          case TSTART:
+                              if (yylex() != NUMBER)
+                                  crash(".trace needs a number operand");
+                              loc = token.ival;
+                              if (loc > 0x10000 || loc < 0)
+                                  crash("Number out of range");
+                              start_trace(loc, name);
+                              break;
 			  default:
 			    crash("Name can only be used with equate in predefines file");
 			    break;
