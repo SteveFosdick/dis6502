@@ -20,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA
  */
 
-
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -29,6 +28,8 @@
 #include <unistd.h>
 
 #include "dis.h"
+    
+#define LABEL_SIZE 100
 
 struct print_cfg pf_orig = {
     .lab  = "%s:\t",
@@ -62,19 +63,22 @@ struct print_cfg pf_lanc = {
 
 struct print_cfg *pf_selected;
 
-static char *lname (addr_t i)
+static char *lname (addr_t i, char *buf)
 {
-	static char buf[20];
-	char t;
+        char t;
+        addr_t offset_addr;
+        char obuf[LABEL_SIZE];
 
 	if (f[i] & NAMED)
 		return(get_name(i));
 	if (f[i] & OFFSET) {
-		strcpy(buf, get_name(i + offset[i]));
-		sprintf (buf + strlen (buf), "%c%ld",
-			 (offset [i] <= 0) ? '+' : '-',
-			 labs (offset [i]));
-		return (buf);
+                offset_addr = i + offset[i];
+                f[offset_addr] |= (f[i] & (SREF|JREF|DREF));
+                snprintf(buf, LABEL_SIZE, "%s%c%ld",
+                         lname(i + offset[i], obuf),
+                         (offset [i] <= 0) ? '+' : '-',
+                         labs (offset [i]));
+                return (buf);
 	}
 	if (f[i] & SREF)
 		t = 'S';
@@ -91,20 +95,22 @@ static char *lname (addr_t i)
 		t = 'X';
 
 	if (i <= 0xff)
-	  sprintf(buf, "%c%02x", t, i);
+            snprintf(buf, LABEL_SIZE, "%c%02x", t, i);
 	else
-	  sprintf(buf, "%c%04x", t, i);
+            snprintf(buf, LABEL_SIZE, "%c%04x", t, i);
 
 	return (buf);
 }
 
-
 static void print_label (addr_t i)
 {
+    char buf[LABEL_SIZE];
+    //debug77("print_label", i);
+    
   if ((f[i] & (NAMED | JREF | SREF | DREF)) &&
       ! (f [i] & OFFSET))
     {
-      printf(pf_selected->lab, lname(i));
+      printf(pf_selected->lab, lname(i, buf));
     }
   else
       putchar('\t');
@@ -112,10 +118,12 @@ static void print_label (addr_t i)
 
 static void print_equ (addr_t i)
 {
+  char buf[LABEL_SIZE];
+
   if ((f[i] & (NAMED | JREF | SREF | DREF)) &&
       ! (f [i] & OFFSET))
     {
-      printf(pf_selected->equ, lname(i));
+        printf(pf_selected->equ, lname(i, buf));
       if (i <= 0xff)
         printf (pf_selected->byte, i);
       else
@@ -162,6 +170,7 @@ static int print_inst(addr_t addr)
 	int opcode;
 	struct mnemonic *ip;
 	int operand;
+        char buf[LABEL_SIZE];
 
 	opcode = getbyte(addr);
 	ip = &optbl[opcode];
@@ -201,24 +210,24 @@ static int print_inst(addr_t addr)
 		case REL:
 		case ABS:
 		case ZPG:
-			printf("\t%s", lname(operand));
+                        printf("\t%s", lname(operand, buf));
 			break;
 		case IND:
-			printf("\t(%s)", lname(operand));
+                        printf("\t(%s)", lname(operand, buf));
 			break;
 		case ABX:
 		case ZPX:
-			printf("\t%s,X", lname(operand));
+                        printf("\t%s,X", lname(operand, buf));
 			break;
 		case ABY:
 		case ZPY:
-			printf("\t%s,Y", lname(operand));
+                        printf("\t%s,Y", lname(operand, buf));
 			break;
 		case INX:
-			printf("\t(%s,X)", lname(operand));
+                        printf("\t(%s,X)", lname(operand, buf));
 			break;
 		case INY:
-			printf("\t(%s),Y", lname(operand));
+                        printf("\t(%s),Y", lname(operand, buf));
 			break;
 		default:
 			break;
@@ -284,6 +293,7 @@ static void print_refs (void)
 	struct ref_chain *rp;
 	uint32_t i;  /* must be larger than an addr_t */
 	int npline;
+        char buf[LABEL_SIZE];
 
 	for (num_labels = i = 0; i<0x10000; i++)
             if(f[i] & (JREF|SREF|DREF))
@@ -294,7 +304,7 @@ static void print_refs (void)
 	for (lp = labels, i = 0; i<0x10000; i++) {
             if(f[i] & (JREF|SREF|DREF)) {
                 lp->addr = i;
-                strncpy(lp->label, lname(i), sizeof lp->label);
+                strncpy(lp->label, lname(i, buf), sizeof lp->label);
                 lp++;
             }
         }
