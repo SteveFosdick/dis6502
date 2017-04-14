@@ -137,7 +137,7 @@ static void print_bytes (addr_t addr)
 	struct mnemonic *ip;
 
 	if ((f[addr] & ISOP) == 0) {
-		printf("           ");
+                fputs("           ", stdout);
 		return;
 	}
 
@@ -175,7 +175,7 @@ static int print_inst(addr_t addr)
 	opcode = getbyte(addr);
 	ip = &optbl[opcode];
 
-	printf("%s", ip->name);
+	fputs(ip->name, stdout);
 
 	addr++;
 
@@ -251,7 +251,7 @@ static int print_data (addr_t i)
 	i++;
 
 	for (j = 1; j < 8; j++) {
-		if (f[i] & (JREF | SREF | DREF) || ((f[i] & LOADED) == 0))
+            if ((f[i] & (JREF | SREF | DREF) && (f[i] & OFFSET) == 0) || (f[i] & LOADED) == 0)
 			break;
 		else
                 {
@@ -262,7 +262,7 @@ static int print_data (addr_t i)
 		count++;
 	}
 	for (j = count; j < 8; j++)
-		printf("   ");
+            fputs("    ", stdout);
 
 	fputs("\t; \"", stdout);
 
