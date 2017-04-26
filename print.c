@@ -213,6 +213,7 @@ static int print_inst(addr_t addr)
                         printf("\t%s", lname(operand, buf));
 			break;
 		case IND:
+                case ZPI:
                         printf("\t(%s)", lname(operand, buf));
 			break;
 		case ABX:

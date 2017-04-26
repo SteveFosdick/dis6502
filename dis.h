@@ -81,6 +81,8 @@ extern struct mnemonic optbl[];
 
 #define CTLMASK (NORM|JUMP|FORK|STOP)
 
+#define CMOS (1 << 4)
+
 /* Instruction format */
 
 #define IMM  (1 << 5)
@@ -96,9 +98,10 @@ extern struct mnemonic optbl[];
 #define IND  (1 << 15)
 #define ZPY  (1 << 16)
 #define ZPG  (1 << 17)
-#define ILL  (1 << 18)
+#define ZPI  (1 << 18)
+#define ILL  (1 << 19)
 
-#define ADRMASK (IMM|ABS|ACC|IMP|INX|INY|ZPX|ABX|ABY|REL|IND|ZPY|ZPG|ILL)
+#define ADRMASK (IMM|ABS|ACC|IMP|INX|INY|ZPX|ABX|ABY|REL|IND|ZPY|ZPG|ZPI|ILL)
 
 struct ref_chain {
 	struct ref_chain *next;
