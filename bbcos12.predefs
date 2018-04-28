@@ -1,0 +1,94 @@
+defvec	.equ	$D940
+
+ROMLANG	.equ	$8000
+ROMSERV	.equ	$8003
+
+OSRDRM	.equ	$FFB9
+VDUCHR	.equ	$FFBC
+OSEVEN	.equ	$FFBF
+GSINIT	.equ	$FFC2
+GSREAD	.equ	$FFC5
+NVRDCH	.equ	$FFC8
+NVWRCH	.equ	$FFCB
+OSFIND	.equ	$FFCE
+OSGBPB	.equ	$FFD1
+OSBPUT	.equ	$FFD4
+OSBGET	.equ	$FFD7
+OSARGS	.equ	$FFDA
+OSFILE	.equ	$FFDD
+OSRDCH	.equ	$FFE0
+OSASCI	.equ	$FFE3
+OSNEWL	.equ	$FFE7
+OSWRCH	.equ	$FFEE
+OSWORD	.equ	$FFF1
+OSBYTE	.equ	$FFF4
+OSCLI	.equ	$FFF7
+
+DUSERV	.equ	$e310
+DBRKV	.equ	$dc54
+DIRQ1V	.equ	$dc93
+DIRQ2V	.equ	$de89
+DCLIV	.equ	$df89
+DBYTEV	.equ	$e772
+DWORDV	.equ	$e7eb
+DWRCHV	.equ	$e0a4
+DRDCHV	.equ	$dec5
+DFILEV	.equ	$f27d
+DARGSV	.equ	$f18e
+DBGETV	.equ	$f4c9
+DBPUTV	.equ	$f529
+DGBPBV	.equ	$ffa6
+DFINDV	.equ	$f3ca
+DFSCV	.equ	$f1b1
+DEVENV	.equ	$ffa6
+DUPTV	.equ	$ffa6
+DNETV	.equ	$ffa6
+DVDUV	.equ	$ffa6
+
+.trace	$8000
+.trace	$8003
+
+.trace	$FFB9
+.trace	$FFBC
+.trace	$FFBF
+.trace	$FFC2
+.trace	$FFC5
+.trace	$FFC8
+.trace	$FFCB
+.trace	$FFCE
+.trace	$FFD1
+.trace	$FFD4
+.trace	$FFD7
+.trace	$FFDA
+.trace	$FFDD
+.trace	$FFE0
+.trace	$FFE3
+.trace	$FFEE
+.trace	$FFF1
+.trace	$FFF4
+.trace	$FFF7
+.trace	$FFFA
+.trace	$FFFC
+.trace	$FFFE
+
+.trace	$e310
+.trace	$dc54
+.trace	$dc93
+.trace	$de89
+.trace	$df89
+.trace	$e772
+.trace	$e7eb
+.trace	$e0a4
+.trace	$dec5
+.trace	$f27d
+.trace	$f18e
+.trace	$f4c9
+.trace	$f529
+.trace	$ffa6
+.trace	$f3ca
+.trace	$f1b1
+.trace	$ffa6
+.trace	$ffa6
+.trace	$ffa6
+.trace	$ffa6
+
