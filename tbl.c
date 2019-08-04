@@ -152,7 +152,7 @@ struct mnemonic optbl[256] = {
 	/* 7d */	{"ADC", 3, ABX|NORM},
 	/* 7e */	{"ROR", 3, ABX|NORM},
 	/* 7f */	{"???", 1, ILL|NORM},
-	/* 80 */	{"BRA", 2, REL|NORM|CMOS},
+	/* 80 */	{"BRA", 2, REL|FORK|CMOS},
 	/* 81 */	{"STA", 2, INX|NORM},
 	/* 82 */	{"???", 1, ILL|NORM},
 	/* 83 */	{"???", 1, ILL|NORM},
