@@ -28,7 +28,7 @@
 #include <unistd.h>
 
 #include "dis.h"
-    
+
 #define LABEL_SIZE 100
 
 struct print_cfg pf_orig = {
@@ -65,214 +65,203 @@ struct print_cfg *pf_selected;
 
 static char *lname (addr_t i, char *buf)
 {
-        char t;
-        addr_t offset_addr;
-        char obuf[LABEL_SIZE];
+    char t;
+    addr_t offset_addr;
+    char obuf[LABEL_SIZE];
 
-	if (f[i] & NAMED)
-		return(get_name(i));
-	if (f[i] & OFFSET) {
-                offset_addr = i + offset[i];
-                f[offset_addr] |= (f[i] & (SREF|JREF|DREF));
-                snprintf(buf, LABEL_SIZE, "%s%c%ld",
-                         lname(i + offset[i], obuf),
-                         (offset [i] <= 0) ? '+' : '-',
-                         labs (offset [i]));
-                return (buf);
-	}
-	if (f[i] & SREF)
-		t = 'S';
-	else if (f[i] & JREF)
-		t = 'L';
-	else if (f[i] & DREF)
-	  {
-	    if (i <= 0xff)
-	      t = 'Z';
-	    else
-	      t = 'D';
-	  }
-	else
-		t = 'X';
+    if (f[i] & NAMED)
+        return(get_name(i));
+    if (f[i] & OFFSET) {
+        offset_addr = i + offset[i];
+        f[offset_addr] |= (f[i] & (SREF|JREF|DREF));
+        snprintf(buf, LABEL_SIZE, "%s%c%ld",
+        lname(i + offset[i], obuf),
+        (offset [i] <= 0) ? '+' : '-',
+        labs (offset [i]));
+        return (buf);
+    }
+    if (f[i] & SREF)
+        t = 'S';
+    else if (f[i] & JREF)
+        t = 'L';
+    else if (f[i] & DREF) {
+        if (i <= 0xff)
+            t = 'Z';
+        else
+            t = 'D';
+    }
+    else
+        t = 'X';
 
-	if (i <= 0xff)
-            snprintf(buf, LABEL_SIZE, "%c%02x", t, i);
-	else
-            snprintf(buf, LABEL_SIZE, "%c%04x", t, i);
+    if (i <= 0xff)
+        snprintf(buf, LABEL_SIZE, "%c%02x", t, i);
+    else
+        snprintf(buf, LABEL_SIZE, "%c%04x", t, i);
 
-	return (buf);
+    return (buf);
 }
 
 static void print_label (addr_t i)
 {
     char buf[LABEL_SIZE];
     //debug77("print_label", i);
-    
-  if ((f[i] & (NAMED | JREF | SREF | DREF)) &&
-      ! (f [i] & OFFSET))
-    {
-      printf(pf_selected->lab, lname(i, buf));
-    }
-  else
-      putchar('\t');
+
+    if ((f[i] & (NAMED | JREF | SREF | DREF)) && ! (f [i] & OFFSET))
+        printf(pf_selected->lab, lname(i, buf));
+    else
+        putchar('\t');
 }
 
 static void print_equ (addr_t i)
 {
-  char buf[LABEL_SIZE];
+    char buf[LABEL_SIZE];
 
-  if ((f[i] & (NAMED | JREF | SREF | DREF)) &&
-      ! (f [i] & OFFSET))
-    {
+    if ((f[i] & (NAMED | JREF | SREF | DREF)) && ! (f [i] & OFFSET)) {
         printf(pf_selected->equ, lname(i, buf));
-      if (i <= 0xff)
-        printf (pf_selected->byte, i);
-      else
-        printf (pf_selected->word, i);
-      putchar('\n');
+        if (i <= 0xff)
+            printf (pf_selected->byte, i);
+        else
+            printf (pf_selected->word, i);
+        putchar('\n');
     }
-}    
+}
 
 static void print_bytes (addr_t addr)
 {
-	struct mnemonic *ip;
+    struct mnemonic *ip;
 
-	if ((f[addr] & ISOP) == 0) {
-                fputs("           ", stdout);
-		return;
-	}
+    if ((f[addr] & ISOP) == 0) {
+        fputs("           ", stdout);
+        return;
+    }
 
-	ip = &optbl[getbyte(addr)];
+    ip = &optbl[getbyte(addr)];
 
-	switch (ip->length) {
-		case 1:
-			printf("%02x         ", getbyte(addr));
-			break;
-		case 2:
-			printf("%02x %02x      ", getbyte(addr), getbyte(addr + 1));
-			break;
-		case 3:
-			printf("%02x %02x %02x   ", getbyte(addr), getbyte(addr + 1), getbyte(addr + 2));
-			break;
-	}
+    switch (ip->length) {
+        case 1:
+            printf("%02x         ", getbyte(addr));
+            break;
+        case 2:
+            printf("%02x %02x      ", getbyte(addr), getbyte(addr + 1));
+            break;
+        case 3:
+            printf("%02x %02x %02x   ", getbyte(addr), getbyte(addr + 1), getbyte(addr + 2));
+            break;
+    }
 }
 
 static int pchar (int c)
 {
-        if (sevenbit)
-                c &= 0x7f;
-	if (isascii(c) && isprint(c))
-		return(c);
-	return('.');
+    if (sevenbit)
+        c &= 0x7f;
+    if (isascii(c) && isprint(c))
+        return(c);
+    return('.');
 }
 
 static int print_inst(addr_t addr)
 {
-	int opcode;
-	struct mnemonic *ip;
-	int operand;
-        char buf[LABEL_SIZE];
+    int opcode;
+    struct mnemonic *ip;
+    int operand;
+    char buf[LABEL_SIZE];
 
-	opcode = getbyte(addr);
-	ip = &optbl[opcode];
+    opcode = getbyte(addr);
+    ip = &optbl[opcode];
 
-	fputs(ip->name, stdout);
+    fputs(ip->name, stdout);
 
-	addr++;
+    addr++;
 
-        operand = 0;  /* only to avoid "may be used
-                         unitialized" warning */
-	switch(ip->length) {
-		case 1:
-			break;
-		case 2:
-			operand = getbyte(addr);
-			break;
-		case 3:
-			operand = getword(addr);
-			break;
-	}
+    operand = 0;  /* only to avoid "may be used
+    unitialized" warning */
+    switch(ip->length) {
+        case 1:
+            break;
+        case 2:
+            operand = getbyte(addr);
+            break;
+        case 3:
+            operand = getword(addr);
+            break;
+    }
 
-	if (ip->flags & REL) {
-		if (operand > 127)
-			operand = (~0xff | operand);
-		operand = operand + ip->length + addr - 1;
-	}
+    if (ip->flags & REL) {
+        if (operand > 127)
+            operand = (~0xff | operand);
+        operand = operand + ip->length + addr - 1;
+    }
 
-	switch (ip->flags & ADRMASK) {
-		case IMM:
-                        putchar('\t');
-                        printf(pf_selected->imm, operand);
-			printf("\t; %d %c", operand, pchar(operand));
-			break;
-		case ACC:
-		case IMP:
-			break;
-		case REL:
-		case ABS:
-		case ZPG:
-                        printf("\t%s", lname(operand, buf));
-			break;
-		case IND:
-                case ZPI:
-                        printf("\t(%s)", lname(operand, buf));
-			break;
-		case ABX:
-		case ZPX:
-                        printf("\t%s,X", lname(operand, buf));
-			break;
-		case ABY:
-		case ZPY:
-                        printf("\t%s,Y", lname(operand, buf));
-			break;
-		case INX:
-                        printf("\t(%s,X)", lname(operand, buf));
-			break;
-		case INY:
-                        printf("\t(%s),Y", lname(operand, buf));
-			break;
-		default:
-			break;
-	}
-
-	return(ip->length);
-
+    switch (ip->flags & ADRMASK) {
+        case IMM:
+            putchar('\t');
+            printf(pf_selected->imm, operand);
+            printf("\t; %d %c", operand, pchar(operand));
+            break;
+        case ACC:
+        case IMP:
+            break;
+        case REL:
+        case ABS:
+        case ZPG:
+            printf("\t%s", lname(operand, buf));
+            break;
+        case IND:
+        case ZPI:
+            printf("\t(%s)", lname(operand, buf));
+            break;
+        case ABX:
+        case ZPX:
+            printf("\t%s,X", lname(operand, buf));
+            break;
+        case ABY:
+        case ZPY:
+            printf("\t%s,Y", lname(operand, buf));
+            break;
+        case INX:
+            printf("\t(%s,X)", lname(operand, buf));
+            break;
+        case INY:
+            printf("\t(%s),Y", lname(operand, buf));
+            break;
+        default:
+            break;
+    }
+    return(ip->length);
 }
 
 static int print_data (addr_t i)
 {
-	int count;
-	int j;
-	int start;
+    int count;
+    int j;
+    int start;
 
-	start = i;
-        fputs(pf_selected->data, stdout);
-        putchar('\t');
-        printf(pf_selected->byte, getbyte(i));
-	count = 1;
-	i++;
+    start = i;
+    fputs(pf_selected->data, stdout);
+    putchar('\t');
+    printf(pf_selected->byte, getbyte(i));
+    count = 1;
+    i++;
 
-	for (j = 1; j < 8; j++) {
-            if ((f[i] & (JREF | SREF | DREF) && (f[i] & OFFSET) == 0) || (f[i] & LOADED) == 0)
-			break;
-		else
-                {
-                    putchar(',');
-                    printf(pf_selected->byte, getbyte(i));
-                }
-		i++;
-		count++;
-	}
-	for (j = count; j < 8; j++)
-            fputs("    ", stdout);
+    for (j = 1; j < 8; j++) {
+        if ((f[i] & (JREF | SREF | DREF) && (f[i] & OFFSET) == 0) || (f[i] & LOADED) == 0)
+            break;
+        else {
+            putchar(',');
+            printf(pf_selected->byte, getbyte(i));
+        }
+        i++;
+        count++;
+    }
+    for (j = count; j < 8; j++)
+        fputs("    ", stdout);
+    fputs("\t; \"", stdout);
 
-	fputs("\t; \"", stdout);
+    for (j = start; j < i ; j++)
+        putchar(pchar((int)getbyte(j)));
+    putchar('"');
 
-	for (j = start; j < i ; j++)
-            putchar(pchar((int)getbyte(j)));
-
-	putchar('"');
-
-	return (count);
+    return (count);
 }
 
 struct label {
@@ -289,89 +278,84 @@ int qs_lab_cmp(const void *a, const void *b)
 
 static void print_refs (void)
 {
-        int num_labels;
-        struct label *labels, *lp, *le;
-	struct ref_chain *rp;
-	uint32_t i;  /* must be larger than an addr_t */
-	int npline;
-        char buf[LABEL_SIZE];
+    int num_labels;
+    struct label *labels, *lp, *le;
+    struct ref_chain *rp;
+    uint32_t i;  /* must be larger than an addr_t */
+    int npline;
+    char buf[LABEL_SIZE];
 
-	for (num_labels = i = 0; i<0x10000; i++)
-            if(f[i] & (JREF|SREF|DREF))
-                num_labels++;
-        
-        labels = emalloc(num_labels * sizeof(struct label));
+    for (num_labels = i = 0; i<0x10000; i++)
+        if(f[i] & (JREF|SREF|DREF))
+            num_labels++;
 
-	for (lp = labels, i = 0; i<0x10000; i++) {
-            if(f[i] & (JREF|SREF|DREF)) {
-                lp->addr = i;
-                strncpy(lp->label, lname(i, buf), sizeof lp->label);
-                lp++;
-            }
+    labels = emalloc(num_labels * sizeof(struct label));
+
+    for (lp = labels, i = 0; i<0x10000; i++) {
+        if(f[i] & (JREF|SREF|DREF)) {
+            lp->addr = i;
+            strncpy(lp->label, lname(i, buf), sizeof lp->label);
+            lp++;
         }
+    }
 
-        qsort(labels, num_labels, sizeof(struct label), qs_lab_cmp);
+    qsort(labels, num_labels, sizeof(struct label), qs_lab_cmp);
 
-	fputs("\n\n\n\n\nCross References\n\n", stdout);
-	printf("%-8s  Value  References\n", "Symbol");
-        for (lp = labels, le = labels + num_labels; lp < le; lp++) {
-            rp = get_ref(lp->addr);
-            if (!rp) {
-                fprintf(stderr, "No ref %d\n", lp->addr);
-                break;
-            }
-            printf("%-8s  %04x   ", lp->label, lp->addr);
-            npline = 0;
-            while (rp) {
-                printf("%04x ", rp->who);
-                npline++;
-                if (npline == 12) {
-                    printf("\n%-8s  %04x   ", lp->label, lp->addr);
-                    npline = 0;
-                }
-                rp = rp->next;
-            }
-            putchar('\n');
+    fputs("\n\n\n\n\nCross References\n\n", stdout);
+    printf("%-8s  Value  References\n", "Symbol");
+    for (lp = labels, le = labels + num_labels; lp < le; lp++) {
+        rp = get_ref(lp->addr);
+        if (!rp) {
+            fprintf(stderr, "No ref %d\n", lp->addr);
+            break;
         }
+        printf("%-8s  %04x   ", lp->label, lp->addr);
+        npline = 0;
+        while (rp) {
+            printf("%04x ", rp->who);
+            npline++;
+            if (npline == 12) {
+                printf("\n%-8s  %04x   ", lp->label, lp->addr);
+                npline = 0;
+            }
+            rp = rp->next;
+        }
+        putchar('\n');
+    }
 }
 
 void dumpitout (void)
 {
-  uint32_t i;  /* must be larger than an addr_t */
+    uint32_t i;  /* must be larger than an addr_t */
 
-  for(i = 0; i<0x10000;)
-    {
-      if (f[i] & LOADED)
-	{
-	  if ((i == 0) || (! (f[i-1] & LOADED)))
-            {
-              putchar('\n');
-              fputs(pf_selected->org, stdout);
-	      printf (pf_selected->word, i);
+    for(i = 0; i<0x10000;) {
+        if (f[i] & LOADED) {
+            if ((i == 0) || (! (f[i-1] & LOADED))) {
+                putchar('\n');
+                fputs(pf_selected->org, stdout);
+                printf (pf_selected->word, i);
             }
 
-	  if (f[i] & SREF && f[i] & ISOP)
-              putchar('\n');
+            if (f[i] & SREF && f[i] & ISOP)
+                putchar('\n');
 
-	  if (! asmout)
-	    {
-	      printf("%04x  ",i);
-	      print_bytes(i);
-	    }
-          print_label(i);
-	  if (f[i] & ISOP)
-	    i += print_inst(i);
-	  else
-	    i += print_data(i);
-	  putchar('\n');
-	}
-      else
-	{
-          print_equ(i);
-	  i++;
-	}
+            if (! asmout) {
+                printf("%04x  ",i);
+                print_bytes(i);
+            }
+            print_label(i);
+            if (f[i] & ISOP)
+                i += print_inst(i);
+            else
+                i += print_data(i);
+            putchar('\n');
+        }
+        else {
+            print_equ(i);
+            i++;
+        }
     }
 
-  if (! asmout)
-    print_refs();
+    if (!asmout)
+        print_refs();
 }

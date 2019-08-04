@@ -28,7 +28,7 @@
 #include <stdnoreturn.h>
 
 extern int sevenbit;  /* if true, mask character data with 0x7f
-			 to ignore MSB */
+             to ignore MSB */
 
 typedef uint16_t addr_t;
 
@@ -53,19 +53,19 @@ extern long offset[];
 
 /* f bits */
 
-#define LOADED (1 << 0)		/* Location loaded */
-#define JREF   (1 << 1)		/* Referenced as jump/branch dest */
-#define DREF   (1 << 2)		/* Referenced as data */
-#define SREF   (1 << 3)		/* Referenced as subroutine dest */
-#define NAMED  (1 << 4)		/* Has a name */
-#define TDONE  (1 << 5)		/* Has been traced */
-#define ISOP   (1 << 6)		/* Is a valid instruction opcode */
-#define OFFSET (1 << 7)		/* should be printed as an offset */
+#define LOADED (1 << 0)     /* Location loaded */
+#define JREF   (1 << 1)     /* Referenced as jump/branch dest */
+#define DREF   (1 << 2)     /* Referenced as data */
+#define SREF   (1 << 3)     /* Referenced as subroutine dest */
+#define NAMED  (1 << 4)     /* Has a name */
+#define TDONE  (1 << 5)     /* Has been traced */
+#define ISOP   (1 << 6)     /* Is a valid instruction opcode */
+#define OFFSET (1 << 7)     /* should be printed as an offset */
 
 struct mnemonic {
-	char name[4];			/* three-letter mnemonic name */
-	int  length;			/* number of bytes */
-	int  flags;			/* control flow and addressing mode */
+    char name[4];           /* three-letter mnemonic name */
+    int  length;            /* number of bytes */
+    int  flags;         /* control flow and addressing mode */
 };
 
 extern struct mnemonic optbl[];
@@ -104,8 +104,8 @@ extern struct mnemonic optbl[];
 #define ADRMASK (IMM|ABS|ACC|IMP|INX|INY|ZPX|ABX|ABY|REL|IND|ZPY|ZPG|ZPI|ILL)
 
 struct ref_chain {
-	struct ref_chain *next;
-	int who;
+    struct ref_chain *next;
+    int who;
 };
 
 struct ref_chain *get_ref(addr_t loc);
@@ -142,8 +142,8 @@ extern FILE *yyin;
 int lineno;
 
 typedef union  {
-	int ival;
-	char *sval;
+    int ival;
+    char *sval;
 } VALUE;
 
 extern VALUE token;

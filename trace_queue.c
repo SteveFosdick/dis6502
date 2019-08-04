@@ -20,40 +20,32 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA
  */
 
-
 #include "dis.h"
-
 
 #define MAX_TRACE_QUEUE 65536
 static int trace_queue_count = 0;
 static addr_t trace_queue_val [MAX_TRACE_QUEUE];
 
-
 void init_trace_queue (void)
 {
-  trace_queue_count = 0;
+    trace_queue_count = 0;
 }
-
 
 int trace_queue_empty (void)
 {
-  return (trace_queue_count == 0);
+    return (trace_queue_count == 0);
 }
-
 
 void push_trace_queue (addr_t addr)
 {
-  if (trace_queue_count >= MAX_TRACE_QUEUE)
-    crash ("Trace queue overflow");
-  trace_queue_val [trace_queue_count++] = addr;
+    if (trace_queue_count >= MAX_TRACE_QUEUE)
+        crash ("Trace queue overflow");
+    trace_queue_val [trace_queue_count++] = addr;
 }
-
 
 addr_t pop_trace_queue (void)
 {
-  if (trace_queue_count == 0)
-    crash ("Trace queue empty");
-  return (trace_queue_val [--trace_queue_count]);
+    if (trace_queue_count == 0)
+        crash ("Trace queue empty");
+    return (trace_queue_val [--trace_queue_count]);
 }
-
-
