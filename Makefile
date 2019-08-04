@@ -26,7 +26,7 @@ INSTDIR = /usr/local
 # "0" value is considered true by make, so to disable conditionals comment
 # them out or set them to a null string.
 
-DEBUG=1
+#DEBUG=1
 #EFENCE=1
 #STATIC=1
 
