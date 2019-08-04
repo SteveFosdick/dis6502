@@ -136,6 +136,7 @@ extern struct print_cfg pf_orig, pf_beebasm, pf_lanc, *pf_selected;
 #define TJTAB2 264
 #define EQS 265
 #define OFS 266
+#define TJTAB 267
 
 extern FILE *yyin;
 int lineno;

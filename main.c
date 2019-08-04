@@ -50,6 +50,12 @@ int jtab2_addr_high [JTAB2_MAX];	/* .jtab2 directive */
 int jtab2_size      [JTAB2_MAX];
 int jtab2_count = 0;
 
+#define JTAB_MAX  50
+
+int jtab_addr       [JTAB_MAX];
+int jtab_size       [JTAB_MAX];
+int jtab_count = 0;
+
 VALUE token;
 
 unsigned char d[0x10000];	 	/* The data */
@@ -274,6 +280,23 @@ void do_jtab2 (void)
     }
 }
 
+void do_jtab (void)
+{
+  int i, j;
+  int loc, code;
+  for (i = 0; i < jtab_count; i++)
+    {
+      loc = jtab_addr [i];
+      fprintf(stderr, "%i:%04X\n", i, loc);
+      for (j = 0; j < jtab_size [i]; j++)
+	{
+	  char *trace_sym = emalloc (6);
+	  code = d [loc + j*2] + (d [loc + 1 + j*2] << 8);
+	  sprintf (trace_sym, "T%04x", code);
+	  start_trace (code, trace_sym);
+	}
+    }
+}
 
 static void loadboot (const char *file)
 {
@@ -481,6 +504,7 @@ int main (int argc, char *argv[])
 	do_ptrace ();
 	do_rtstab ();
 	do_jtab2 ();
+        do_jtab ();
 
 	trace_all ();
 
@@ -538,6 +562,19 @@ void get_predef (void)
 		    crash(".jtab2 needs a number operand");
 		  jtab2_size [jtab2_count++] = token.ival;
 		  break;
+                case TJTAB:
+                    if (yylex() != NUMBER)
+                        crash(".jtab needs an address operand");
+                    if (token.ival > 0x10000 || token.ival < 0)
+                        crash("Address out of range");
+                    jtab_addr[jtab_count] = token.ival;
+                    if (yylex() != ',')
+                        crash(".jtab needs a comma");
+                    if (yylex() != NUMBER)
+                        crash(".jtab needs a size operand");
+                    fprintf(stderr, "jtab: %04X, %d\n", jtab_addr[jtab_count], token.ival);
+                    jtab_size [jtab_count++] = token.ival;
+                    break;
 		case TSTART:
 			if (yylex() != NUMBER)
 				crash(".trace needs a number operand");

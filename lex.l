@@ -62,6 +62,8 @@ alphanum	[0-9a-zA-Z_]
 
 \.[Jj][Tt][Aa][Bb]2	{ return TJTAB2; }
 
+\.[Jj][Tt][Aa][Bb]	{ return TJTAB; }
+
 {digit}+		{
 			  token.ival = parse_int(yytext, 10);
 			  return NUMBER;
