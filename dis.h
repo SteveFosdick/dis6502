@@ -139,7 +139,7 @@ extern struct print_cfg pf_orig, pf_beebasm, pf_lanc, *pf_selected;
 #define TJTAB 267
 
 extern FILE *yyin;
-int lineno;
+extern int lineno;
 
 typedef union  {
     int ival;
