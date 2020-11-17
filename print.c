@@ -294,7 +294,8 @@ static void print_refs (void)
     for (lp = labels, i = 0; i<0x10000; i++) {
         if(f[i] & (JREF|SREF|DREF)) {
             lp->addr = i;
-            strncpy(lp->label, lname(i, buf), sizeof lp->label);
+            strncpy(lp->label, lname(i, buf), (sizeof lp->label)-1);
+            lp->label[(sizeof lp->label)-1] = 0;
             lp++;
         }
     }

@@ -157,7 +157,7 @@ void trace_inst (addr_t addr)
             case ABX:
                 if (ip->flags & (JUMP | FORK))
                     break;
-                /* Fall into */
+                /* FALLS THROUGH */
             case ABY:
             case IND:
             case INX:
@@ -242,7 +242,7 @@ void do_rtstab (void)
     for (i = 0; i < rtstab_count; i++) {
         loc = rtstab_addr [i];
         for (j = 0; j < rtstab_size [i]; j++) {
-            char *trace_sym = emalloc (6);
+            char *trace_sym = emalloc (7);
             code = d [loc] + (d [loc + 1] << 8) + 1;
             sprintf (trace_sym, "T%04x", code);
             start_trace (code, trace_sym);
