@@ -334,8 +334,8 @@ void dumpitout (void)
                 putchar('\n');
                 fputs(pf_selected->org, stdout);
                 printf (pf_selected->word, i);
+                putchar('\n');
             }
-
             if (f[i] & SREF && f[i] & ISOP)
                 putchar('\n');
 
