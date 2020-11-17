@@ -58,6 +58,9 @@ alphanum        [0-9a-zA-Z_]
 
 \.[Ss][Tt][Oo][Pp]      { return TSTOP; }
 
+\.[Rr][Tt][Ss][Tt][Aa][Bb]2      { return TRTSTAB2; }
+
+
 \.[Rr][Tt][Ss][Tt][Aa][Bb]      { return TRTSTAB; }
 
 \.[Jj][Tt][Aa][Bb]2     { return TJTAB2; }

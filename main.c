@@ -43,6 +43,11 @@ int rtstab_addr [RTSTAB_MAX];       /* .rtstab directive */
 int rtstab_size [RTSTAB_MAX];
 int rtstab_count = 0;
 
+int rtstab2_addr_low[RTSTAB_MAX];   /* rtstab2 directive */
+int rtstab2_addr_high[RTSTAB_MAX];
+int rtstab2_size[RTSTAB_MAX];
+int rtstab2_count = 0;
+
 #define JTAB2_MAX 50
 
 int jtab2_addr_low  [JTAB2_MAX];    /* .jtab2 directive */
@@ -267,6 +272,20 @@ void do_jtab2 (void)
     }
 }
 
+void do_rtstab2 (void)
+{
+    for (int i = 0; i < rtstab2_count; i++) {
+        int loc_l = rtstab2_addr_low [i];
+        int loc_h = rtstab2_addr_high [i];
+        for (int j = 0; j < rtstab2_size[i]; j++) {
+            char *trace_sym = emalloc (7);
+            int code = (d [loc_l + j] + (d [loc_h + j] << 8))+1;
+            sprintf (trace_sym, "T%04x", code);
+            start_trace (code, trace_sym);
+        }
+    }
+}
+
 void do_jtab (void)
 {
     int i, j;
@@ -479,6 +498,7 @@ int main (int argc, char *argv[])
 
     do_ptrace ();
     do_rtstab ();
+    do_rtstab2();
     do_jtab2 ();
     do_jtab ();
 
@@ -518,6 +538,25 @@ void get_predef (void)
                 size = token.ival;
                 rtstab_addr [rtstab_count] = loc;
                 rtstab_size [rtstab_count++] = size;
+                break;
+            case TRTSTAB2:
+                if (yylex() != NUMBER)
+                    crash(".rtstab2 needs an address operand");
+                if (token.ival > 0x10000 || token.ival < 0)
+                    crash("Number out of range");
+                rtstab2_addr_low[rtstab2_count] = token.ival;
+                if (yylex() != ',')
+                    crash(".rtstab2 needs a comma");
+                if (yylex() != NUMBER)
+                    crash(".rtstab needs a number operand");
+                if (token.ival > 0x10000 || token.ival < 0)
+                    crash("Number out of range");
+                rtstab2_addr_high[rtstab2_count] = token.ival;
+                if (yylex() != ',')
+                    crash(".rtstab2 needs a comma");
+                if (yylex() != NUMBER)
+                    crash(".rtstab needs a number operand");
+                rtstab2_size[rtstab2_count++] = token.ival;
                 break;
             case TJTAB2:
                 if (yylex() != NUMBER)
