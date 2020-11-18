@@ -148,7 +148,7 @@ static void print_equ (addr_t i)
 
 static void print_bytes (addr_t addr)
 {
-    struct mnemonic *ip;
+    const struct mnemonic *ip;
 
     if ((f[addr] & ISOP) == 0) {
         fputs("           ", stdout);
@@ -182,7 +182,7 @@ static int pchar (int c)
 static int print_inst(addr_t addr)
 {
     int opcode;
-    struct mnemonic *ip;
+    const struct mnemonic *ip;
     int operand;
     char buf[LABEL_SIZE];
 

@@ -68,7 +68,7 @@ struct mnemonic {
     int  flags;         /* control flow and addressing mode */
 };
 
-extern struct mnemonic optbl[];
+extern const struct mnemonic optbl[];
 
 /* Flags */
 
@@ -174,7 +174,6 @@ addr_t pop_trace_queue (void);
 /* in main.c: */
 noreturn void crash (const char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
 void *emalloc(size_t bytes) __attribute__((malloc));
-void get_predef (void);
 
 
 #endif /* _DIS6502_H */

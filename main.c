@@ -31,35 +31,35 @@ int sevenbit = 0;  /* if true, mask character data with 0x7f to ignore MSB */
 
 #define NTSTART 500
 
-char *cur_file = NULL;          /* the file thats open */
-int  pre_index = 0;
+static char *cur_file = NULL;          /* the file thats open */
+static int  pre_index = 0;
 
-int  tstart[NTSTART];           /* .trace directive keep locations */
-int  tstarti = 0;
+static int  tstart[NTSTART];           /* .trace directive keep locations */
+static int  tstarti = 0;
 
 #define RTSTAB_MAX 50
 
-int rtstab_addr [RTSTAB_MAX];       /* .rtstab directive */
-int rtstab_size [RTSTAB_MAX];
-int rtstab_count = 0;
+static int rtstab_addr [RTSTAB_MAX];       /* .rtstab directive */
+static int rtstab_size [RTSTAB_MAX];
+static int rtstab_count = 0;
 
-int rtstab2_addr_low[RTSTAB_MAX];   /* rtstab2 directive */
-int rtstab2_addr_high[RTSTAB_MAX];
-int rtstab2_size[RTSTAB_MAX];
-int rtstab2_count = 0;
+static int rtstab2_addr_low[RTSTAB_MAX];   /* rtstab2 directive */
+static int rtstab2_addr_high[RTSTAB_MAX];
+static int rtstab2_size[RTSTAB_MAX];
+static int rtstab2_count = 0;
 
 #define JTAB2_MAX 50
 
-int jtab2_addr_low  [JTAB2_MAX];    /* .jtab2 directive */
-int jtab2_addr_high [JTAB2_MAX];    /* .jtab2 directive */
-int jtab2_size      [JTAB2_MAX];
-int jtab2_count = 0;
+static int jtab2_addr_low  [JTAB2_MAX];    /* .jtab2 directive */
+static int jtab2_addr_high [JTAB2_MAX];    /* .jtab2 directive */
+static int jtab2_size      [JTAB2_MAX];
+static int jtab2_count = 0;
 
 #define JTAB_MAX  50
 
-int jtab_addr       [JTAB_MAX];
-int jtab_size       [JTAB_MAX];
-int jtab_count = 0;
+static int jtab_addr       [JTAB_MAX];
+static int jtab_size       [JTAB_MAX];
+static int jtab_count = 0;
 
 VALUE token;
 
@@ -102,7 +102,7 @@ void *emalloc(size_t bytes)
 }
 
 
-void add_trace (addr_t addr)
+static void add_trace (addr_t addr)
 {
     if (f [addr] & TDONE)
         return;
@@ -110,10 +110,10 @@ void add_trace (addr_t addr)
 }
 
 
-void trace_inst (addr_t addr)
+static void trace_inst (addr_t addr)
 {
     int opcode;
-    struct mnemonic *ip;
+    const struct mnemonic *ip;
     int operand;
     int istart;
 
@@ -209,14 +209,14 @@ void trace_inst (addr_t addr)
     }
 }
 
-void trace_all (void)
+static void trace_all (void)
 {
   while (! trace_queue_empty ())
     trace_inst (pop_trace_queue ());
 }
 
 
-void start_trace (addr_t loc, char *name)
+static void start_trace (addr_t loc, char *name)
 {
     fprintf(stderr, "Trace: %4x %s\n", loc, name);
     f[loc] |= (NAMED | SREF);
@@ -227,7 +227,7 @@ void start_trace (addr_t loc, char *name)
 }
 
 
-void do_ptrace (void)
+static void do_ptrace (void)
 {
   int i;
   for (i = 0; i<tstarti; i++)
@@ -239,7 +239,7 @@ void do_ptrace (void)
 }
 
 
-void do_rtstab (void)
+static void do_rtstab (void)
 {
     int i, j;
     int loc, code;
@@ -256,7 +256,7 @@ void do_rtstab (void)
     }
 }
 
-void do_jtab2 (void)
+static void do_jtab2 (void)
 {
     int i, j;
     int loc_l, loc_h, code;
@@ -272,7 +272,7 @@ void do_jtab2 (void)
     }
 }
 
-void do_rtstab2 (void)
+static void do_rtstab2 (void)
 {
     for (int i = 0; i < rtstab2_count; i++) {
         int loc_l = rtstab2_addr_low [i];
@@ -286,7 +286,7 @@ void do_rtstab2 (void)
     }
 }
 
-void do_jtab (void)
+static void do_jtab (void)
 {
     int i, j;
     int loc, code;
@@ -464,53 +464,7 @@ static void binaryloadfile (const char *file, int base_address, int vector_addre
     start_trace ((d [nmi   + 1] << 8) | d [nmi  ], "NMI");
 }
 
-int main (int argc, char *argv[])
-{
-    initopts(argc, argv);
-
-    init_trace_queue ();
-
-    if (npredef > 0) {
-        cur_file = predef[0];
-        pre_index++;
-        yyin = fopen(cur_file, "r");
-        if (!yyin)
-            crash ("Can't open predefine file %s", cur_file);
-        get_predef();
-    }
-
-    switch (bopt) {
-        case RAW_BINARY:
-            binaryloadfile(global_file, global_base_address, global_vector_address);
-            break;
-        case ATARI_LOAD:
-            loadfile(global_file);
-            break;
-        case C64_LOAD:
-            c64loadfile(global_file);
-            break;
-        case ATARI_BOOT:
-            loadboot(global_file);
-            break;
-        default:
-            crash ("File format must be specified");
-    }
-
-    do_ptrace ();
-    do_rtstab ();
-    do_rtstab2();
-    do_jtab2 ();
-    do_jtab ();
-
-    trace_all ();
-
-    dumpitout();
-
-    exit(EXIT_SUCCESS);
-}
-
-
-void get_predef (void)
+static void get_predef (void)
 {
     long loc, loc2;
     int i;
@@ -677,6 +631,52 @@ void get_predef (void)
             default:
                 crash("Invalid line in predefines file");
         }
+}
+
+
+int main (int argc, char *argv[])
+{
+    initopts(argc, argv);
+
+    init_trace_queue ();
+
+    if (npredef > 0) {
+        cur_file = predef[0];
+        pre_index++;
+        yyin = fopen(cur_file, "r");
+        if (!yyin)
+            crash ("Can't open predefine file %s", cur_file);
+        get_predef();
+    }
+
+    switch (bopt) {
+        case RAW_BINARY:
+            binaryloadfile(global_file, global_base_address, global_vector_address);
+            break;
+        case ATARI_LOAD:
+            loadfile(global_file);
+            break;
+        case C64_LOAD:
+            c64loadfile(global_file);
+            break;
+        case ATARI_BOOT:
+            loadboot(global_file);
+            break;
+        default:
+            crash ("File format must be specified");
+    }
+
+    do_ptrace ();
+    do_rtstab ();
+    do_rtstab2();
+    do_jtab2 ();
+    do_jtab ();
+
+    trace_all ();
+
+    dumpitout();
+
+    exit(EXIT_SUCCESS);
 }
 
 
