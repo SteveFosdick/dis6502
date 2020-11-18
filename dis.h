@@ -121,7 +121,7 @@ struct print_cfg {
     const char *data;
 };
 
-extern struct print_cfg pf_orig, pf_beebasm, pf_lanc, *pf_selected;
+extern struct print_cfg pf_orig, pf_beebasm, pf_lanc, pf_ca65, pf_as, *pf_selected;
 
 /* lex junk */
 

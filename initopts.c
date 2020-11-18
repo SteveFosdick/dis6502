@@ -86,8 +86,14 @@ void initopts(int argc, char *argv[])
                     case '7':
                         sevenbit = 1;
                         break;
+                    case 'A':
+                        pf_selected = &pf_as;
+                        break;
                     case 'B':
                         pf_selected = &pf_beebasm;
+                        break;
+                    case 'C':
+                        pf_selected = &pf_ca65;
                         break;
                     case 'L':
                         pf_selected = &pf_lanc;

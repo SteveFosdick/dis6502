@@ -61,6 +61,26 @@ struct print_cfg pf_lanc = {
     .data = "DFB"
 };
 
+struct print_cfg pf_ca65 = {
+    .lab  = "%s:\t",
+    .byte = "$%02X",
+    .word = "$%04X",
+    .imm  = "#$%02X",
+    .equ  = "%s\t=\t",
+    .org  = "\t.org\t",
+    .data = ".byte"
+};
+
+struct print_cfg pf_as = {
+    .lab  = "%s:\t",
+    .byte = "$%02X",
+    .word = "$%04X",
+    .imm  = "#$%02X",
+    .equ  = "%s\tequ\t",
+    .org  = "\torg\t",
+    .data = "byt"
+};
+
 struct print_cfg *pf_selected;
 
 static char *lname (addr_t i, char *buf)
