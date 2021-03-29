@@ -459,9 +459,12 @@ static void binaryloadfile (const char *file, int base_address, int vector_addre
 
     fprintf (stderr, "base: %04x  reset: %04x  irq: %04x  nmi: %04x\n", base_address, reset, irq, nmi);
 
-    start_trace ((d [reset + 1] << 8) | d [reset], "RESET");
-    start_trace ((d [irq   + 1] << 8) | d [irq  ], "IRQ");
-    start_trace ((d [nmi   + 1] << 8) | d [nmi  ], "NMI");
+    if (reset < i)
+        start_trace ((d [reset + 1] << 8) | d [reset], "RESET");
+    if (irq < i)
+        start_trace ((d [irq   + 1] << 8) | d [irq  ], "IRQ");
+    if (nmi < i)
+        start_trace ((d [nmi   + 1] << 8) | d [nmi  ], "NMI");
 }
 
 static void get_predef (void)
