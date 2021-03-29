@@ -147,7 +147,7 @@ const struct mnemonic optbl[256] = {
     /* 79 */    {"ADC", 3, ABY|NORM},
     /* 7a */    {"PLY", 1, IMP|NORM|CMOS},
     /* 7b */    {"???", 1, ILL|NORM},
-    /* 7c */    {"JMP", 3, ABX|NORM|CMOS},
+    /* 7c */    {"JMP", 3, INX|NORM|CMOS},
     /* 7d */    {"ADC", 3, ABX|NORM},
     /* 7e */    {"ROR", 3, ABX|NORM},
     /* 7f */    {"???", 1, ILL|NORM},
