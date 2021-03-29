@@ -36,6 +36,7 @@ struct print_cfg pf_orig = {
     .byte = "$%02x",
     .word = "$%04x",
     .imm  = "#$%02x",
+    .acc  = "",
     .equ  = "%s\t.equ\t",
     .org  = "\t.org\t",
     .data = ".byte"
@@ -46,6 +47,7 @@ struct print_cfg pf_beebasm = {
     .byte = "&%02X",
     .word = "&%04X",
     .imm  = "#&%02X",
+    .acc  = "\tA",
     .equ  = "%s\t=\t",
     .org  = "\tORG\t",
     .data = "EQUB"
@@ -56,6 +58,7 @@ struct print_cfg pf_lanc = {
     .byte = "$%02X",
     .word = "$%04X",
     .imm  = "#$%02X",
+    .acc  = "",
     .equ  = "%s\tEQU\t",
     .org  = "\tORG\t",
     .data = "DFB"
@@ -66,6 +69,7 @@ struct print_cfg pf_ca65 = {
     .byte = "$%02X",
     .word = "$%04X",
     .imm  = "#$%02X",
+    .acc  = "",
     .equ  = "%s\t=\t",
     .org  = "\t.org\t",
     .data = ".byte"
@@ -76,6 +80,7 @@ struct print_cfg pf_as = {
     .byte = "$%02X",
     .word = "$%04X",
     .imm  = "#$%02X",
+    .acc  = "",
     .equ  = "%s\tequ\t",
     .org  = "\torg\t",
     .data = "byt"
@@ -219,6 +224,8 @@ static int print_inst(addr_t addr)
             printf("\t; %d %c", operand, pchar(operand));
             break;
         case ACC:
+            fputs(pf_selected->acc, stdout);
+            break;
         case IMP:
             break;
         case REL:

@@ -116,6 +116,7 @@ struct print_cfg {
     const char *byte;
     const char *word;
     const char *imm;
+    const char *acc;
     const char *equ;
     const char *org;
     const char *data;
