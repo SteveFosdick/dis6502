@@ -84,7 +84,7 @@ OBJS = $(ALL_CSRCS:.c=.o)
 all: $(TARGETS)
 
 dis6502.1: dis.rst
-	rst2man.py dis.rst >$@
+	rst2man dis.rst >$@
 dis6502.man: dis6502.1
 	nroff -man dis6502.1 >$@
 
